@@ -699,7 +699,7 @@
             autoRefreshInterval = setInterval(() => {
                 console.log("⏱️ Auto-refrescando historial del chat...");
                 cargarHistorial(numeroActual);
-            }, 5000);  // Cada 5 segundos
+            }, 60000);  // Cada 5 segundos
             console.log("✅ Auto-refresh ACTIVADO para historial");
         } else {
             // Si no hay chat → recargar lista de chats
@@ -865,7 +865,7 @@
         } finally {
             btn.disabled = false;
             btn.style.opacity = '1';
-            btn.textContent = btnTextoOriginal;
+            btn.textContent = btnTexto;
         }
     }
 
@@ -918,11 +918,15 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        #btn-enviar, #btn-refrescar-chats {
+        transition: opacity 0.2s ease, background-color 0.2s ease;
+        }
         #btn-enviar {
             transition: opacity 0.2s ease;
         }
-        #btn-enviar:disabled {
+        #btn-enviar:disabled, #btn-refrescar-chats:disabled {
             cursor: not-allowed;
+            opacity: 0.6 !important;
         }
     `;
     document.head.appendChild(styleSheet);

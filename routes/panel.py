@@ -93,20 +93,20 @@ async def obtener_chats():
         for i, row in enumerate(data):
             try:
                 # Verificar que estado sea "Pendiente Asesor"
-                estado = row.get("Estado", "").strip()
+                estado = str(row.get("Estado", "")).strip()
                 
                 if estado == "Pendiente Asesor":  
                     chat = {
                         "id": i,
-                        "numero": row.get("Numero", "?"),
-                        "mensaje": row.get("Ultimo Mensaje", "-")[:60],
-                        "modo": row.get("Modo", "?"),
+                        "numero": str(row.get("Numero", "?")).strip(),
+                        "mensaje": str(row.get("Ultimo Mensaje", "-"))[:60],
+                        "modo": str(row.get("Modo", "?")).strip(),
                         "estado": estado,
-                        "hora": row.get("Hora", "-"),
-                        "empresa": row.get("Empresa", "-"),
-                        "servicio": row.get("Servicio", "-"),
+                        "hora": str(row.get("Hora", "-")).strip(),
+                        "empresa": str(row.get("Empresa", "-")).strip(),
+                        "servicio": str(row.get("Servicio", "-")).strip(),
                         "intercambios": row.get("Intercambios", 0),
-                        "historial_raw": row.get("Historial", ""),
+                        "historial_raw": str(row.get("Historial", "")).strip(),
                     }
                     chats.append(chat)
                     logger.info(f"   ✅ Chat agregado: {chat['numero']}")
@@ -121,7 +121,7 @@ async def obtener_chats():
             "status": "ok",
             "count": len(chats),
             "chats": chats,
-            "mensaje": f"{len(chats)} chats pendientes"
+            "timestamp": datetime.now().isoformat()
         }
     
     except Exception as e:
@@ -146,13 +146,12 @@ async def obtener_numeros():
         
         numeros = []
         for row in data:
-            numero = row.get("Numero", "").strip()
+            numero = str(row.get("Numero", "")).strip()
             if numero and isinstance(numero, str) and numero != "":
                 numeros.append({
                     "numero": numero,
                     "estado": row.get("Estado", "-"),
-                    "nombre": f"{numero} - {row.get('Empresa', '-')}"
-                })
+                    "nombre": f"{numero} - {row.get('Empresa', '-').strip()}"})
         
         # Eliminar duplicados
         numeros_unicos = {n['numero']: n for n in numeros}.values()
@@ -313,7 +312,11 @@ async def responder(data: RespuestaInput):
         cambiar_modo(numero, "HUMANO")
         
         logger.info(f"✅ Respuesta enviada a {numero}")
-        
+        try:
+            cambiar_modo(numero, "HUMANO")
+            logger.info(f"   ✅ Modo cambiado")
+        except Exception as e:
+            logger.warning(f"   ⚠️  Error cambiando modo: {e}")
         return {
             "status": "ok",
             "numero": numero,

@@ -35,37 +35,80 @@ def obtener_modo(numero):
     return modo_sheet
 
 def cambiar_modo(numero, nuevo_modo):
-    actualizar_sheet(numero, nuevo_modo)
-
+    print(f"\n🔄 CAMBIAR_MODO iniciado")
+    print(f"   📱 Número: {numero}")
+    print(f"   🆕 Nuevo modo: {nuevo_modo}")
+    try:
+        # 1️⃣ Actualizar Google Sheets
+        print(f"   📤 Actualizando Google Sheets...")
+        actualizar_sheet(numero, nuevo_modo)
+        print(f"   ✅ Google Sheets actualizado")
+    except Exception as e:
+        print(f"   ⚠️  Error actualizando Sheets: {e}")
+        # Continuar de todas formas - la memoria es lo importante
+ 
+    # 2️⃣ Actualizar memory_store
     with lock:
+        print(f"   🔒 Adquirido lock")
+        
         if numero in memory_store:
+            print(f"   ✅ Usuario encontrado en memory_store")
             memory_store[numero]["modo"] = nuevo_modo
             memory_store[numero]["last_mode_check"] = time.time()
+            print(f"   ✅ Modo cambiado a {nuevo_modo} en memoria")
+        else:
+            print(f"   ⚠️  Usuario NO encontrado en memory_store")
+            # Crear entrada si no existe
+            memory_store[numero] = {
+                "historial": deque(maxlen=MAX_MENSAJES),
+                "last_update": time.time(),
+                "modo": nuevo_modo,
+                "last_mode_check": time.time()
+            }
+            print(f"   ✅ Usuario creado en memory_store con modo {nuevo_modo}")
+        
+        print(f"   🔓 Lock liberado\n")
 
 def guardar_interaccion(numero, role, mensaje):
+    print(f"\n💾 GUARDAR_INTERACCION iniciado")
+    print(f"   📱 Número: {numero}")
+    print(f"   👤 Role: {role}")
+    print(f"   💬 Mensaje: {mensaje[:60]}...")
     if role not in ("user", "assistant"):
+        print(f"   ❌ Role inválido: {role}")
         raise ValueError("role inválido")
 
     with lock:
         limpiar_expirados()
         if numero not in memory_store:
             if len(memory_store) >= MAX_USERS:
+                print(f"   ⚠️  Max usuarios alcanzado. Eliminando el más antiguo...")
                 eliminar_mas_antiguo()
-
+ 
             memory_store[numero] = {
                 "historial": deque(maxlen=MAX_MENSAJES),
                 "last_update": time.time(),
                 "modo": "AUTO",
-                "last_mode_check": 0}
-
+                "last_mode_check": 0
+            }
+            print(f"   ✅ Usuario creado en memory_store")
+        else:
+            print(f"   ✅ Usuario encontrado en memory_store")
+ 
         data = memory_store[numero]
-
+ 
+        # Agregar mensaje
         data["historial"].append({
             "role": role,
             "content": mensaje
         })
-        print("Guardando interaccion:", data)
+        
+        print(f"   📊 Historial ahora tiene {len(data['historial'])} mensajes")
+        print(f"   ✅ Mensaje guardado en memoria")
+        
         data["last_update"] = time.time()
+        
+    print(f"   🔓 Lock liberado\n")
 
 def obtener_historial(numero):
     with lock:
