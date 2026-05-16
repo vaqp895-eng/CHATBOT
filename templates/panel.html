@@ -475,19 +475,28 @@
                         placeholder="Escribe tu respuesta aquí..."
                         rows="2"
                         maxlength="4000"></textarea>
-                    <div style="display: flex; gap: 8px;">
-                    <button class="btn-secundario" onclick="enviarImagen()" title="Enviar imagen">
-                        🖼️
-                    </button>
-                    <button class="btn-secundario" onclick="enviarDocumento()" title="Enviar documento">
-                        📄
-                    </button>
-                    <button class="btn-secundario" onclick="enviarUbicacion()" title="Enviar ubicación">
-                        📍
-                    </button>
-                    <button id="btn-enviar" class="btn-enviar" onclick="enviarRespuesta()">
-                        📤 Enviar
-                    </button>
+                    <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                        <button class="btn-secundario" onclick="enviarImagen()" title="Enviar imagen">
+                            🖼️ Imagen
+                        </button>
+                        <button class="btn-secundario" onclick="enviarDocumento()" title="Enviar documento">
+                            📄 Documento
+                        </button>
+                        <button class="btn-secundario" onclick="enviarUbicacion()" title="Enviar ubicación">
+                            📍 Ubicación
+                        </button>
+                    </div>
+
+                    <div class="input-wrapper">
+                        <textarea 
+                            id="mensaje" 
+                            class="input-field" 
+                            placeholder="Escribe tu respuesta aquí..."
+                            rows="2"
+                            maxlength="4000"></textarea>
+                        <button id="btn-enviar" class="btn-enviar" onclick="enviarRespuesta()">
+                            📤 Enviar
+                        </button>
                 </div>
                 <div id="char-count" class="char-count"></div>
             </div>
@@ -688,15 +697,11 @@
     // ===== RENDERIZAR CHATS =====
     function renderizarChats(chats) {
         const chatsDiv = document.getElementById('chats');
-        const countDiv = document.getElementById('chat-count');
         
         if (!chats || chats.length === 0) {
             chatsDiv.innerHTML = '<div class="empty-chat">No hay chats pendientes</div>';
-            countDiv.textContent = '0';
             return;
         }
- 
-        countDiv.textContent = chats.length;
  
         let html = '';
         chats.forEach(chat => {
