@@ -473,6 +473,25 @@
     modoActualChat = "AUTO"; 
     let autoRefreshInterval = null;
 
+    // ===== REFRESCAR CHATS MANUALMENTE =====
+    async function refrescarChatsManual() {
+        console.log('🔄 Refrescando...');
+        const btn = document.querySelector('.btn-refrescar-chats');
+        btn.disabled = true;
+        
+        try {
+            const response = await fetch(`${API_BASE}/panel/chats`);
+            if (!response.ok) throw new Error('Error');
+            
+            const data = await response.json();
+            chatsData = data.chats || [];
+            renderizarChats(chatsData);
+        } catch (error) {
+            console.error('❌ Error:', error);
+        } finally {
+            btn.disabled = false;
+        }
+    }
     // ===== CARGAR CHATS (SOLO UNA VEZ AL INICIAR) =====
     async function cargarChatsUnaVez() {
         if (chatsLoadedOnce) {
@@ -675,12 +694,7 @@
             }, 60000);  // Cada 5 segundos
             console.log("✅ Auto-refresh ACTIVADO para historial");
         } else {
-            // Si no hay chat → recargar lista de chats
-            autoRefreshInterval = setInterval(() => {
-                console.log("⏱️ Auto-refrescando lista de chats...");
-                cargarChats();
-            }, 14400000);  // Cada4 horas
-            console.log("✅ Sin chat abierto. Sin auto-refresh.");
+            console.log("✅ Sin chat abierto. Sin auto-refresh.")
         }
     }
     // ===== ABRIR CHAT =====
