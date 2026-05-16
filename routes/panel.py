@@ -11,8 +11,6 @@ from services.memory import (
     lock, 
     MAX_MENSAJES,
     obtener_historial,
-    limpiar_expirados,
-    parsear_historial,
     iniciar_google
 )
  
