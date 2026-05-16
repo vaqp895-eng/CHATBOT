@@ -393,7 +393,32 @@
             background: var(--gray-300);
             border-radius: 3px;
         }
-        
+        /* ===== BOTONES SECUNDARIOS ===== */
+        .btn-secundario {
+            padding: 10px 12px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 6px rgba(245, 87, 108, 0.3);
+        }
+
+        .btn-secundario:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-secundario:active {
+            transform: translateY(0);
+        }
+
+        .btn-secundario:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
         .chat-area::-webkit-scrollbar-thumb:hover,
         .chats-list::-webkit-scrollbar-thumb:hover {
             background: var(--gray-400);
@@ -450,6 +475,16 @@
                         placeholder="Escribe tu respuesta aquí..."
                         rows="2"
                         maxlength="4000"></textarea>
+                    <div style="display: flex; gap: 8px;">
+                    <button class="btn-secundario" onclick="enviarImagen()" title="Enviar imagen">
+                        🖼️
+                    </button>
+                    <button class="btn-secundario" onclick="enviarDocumento()" title="Enviar documento">
+                        📄
+                    </button>
+                    <button class="btn-secundario" onclick="enviarUbicacion()" title="Enviar ubicación">
+                        📍
+                    </button>
                     <button id="btn-enviar" class="btn-enviar" onclick="enviarRespuesta()">
                         📤 Enviar
                     </button>
