@@ -155,7 +155,7 @@ def guardar_interaccion(numero, role, mensaje):
         print(f"      (Memory_store ya tiene los datos, no es crítico)")
     
     print(f"   ✅ GUARDADO COMPLETADO (memory + sheets)\n")
-    
+
 def obtener_historial(numero):
     with lock:
         data = memory_store.get(numero)

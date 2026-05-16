@@ -520,6 +520,7 @@
     const API_BASE = '';
     let chatsData = [];
     let numeroActual = null;
+    let chatsLoadedOnce = false;
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = 'image/*';
@@ -528,6 +529,35 @@
     document.body.appendChild(fileInput);
     modoActualChat = "AUTO"; 
     let autoRefreshInterval = null;
+
+    // ===== CARGAR CHATS (SOLO UNA VEZ AL INICIAR) =====
+    async function cargarChatsUnaVez() {
+        if (chatsLoadedOnce) {
+            console.log("⏭️  Chats ya cargados. Saltando...");
+            return;
+        }
+        
+        console.log('📊 Cargando chats por PRIMERA VEZ...');
+        
+        try {
+            const response = await fetch(`${API_BASE}/panel/chats`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const data = await response.json();
+            chatsData = data.chats || [];
+            
+            console.log(`✅ ${chatsData.length} chats cargados (UNA VEZ)`);
+            renderizarChats(chatsData);
+            cargarNumeros();
+            
+            chatsLoadedOnce = true;  // ← Marcar como cargado
+        } catch (error) {
+            console.error('❌ Error:', error);
+        }
+    }
 
     // ===== ENVIAR IMAGEN =====
     async function enviarImagen() {
@@ -907,7 +937,7 @@
     // ===== INICIALIZAR =====
     document.addEventListener('DOMContentLoaded', () => {
         console.log('🚀 Panel iniciado');
-        cargarChats();
+        cargarChatsUnaVez();
         
         // Auto-refresh cada 30 segundos
         setInterval(cargarChats, 30000);

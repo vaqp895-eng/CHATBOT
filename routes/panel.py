@@ -3,7 +3,8 @@ import logging
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
-from datetime import datetime, time
+import time
+from datetime import datetime
 from collections import deque
 
 from services.memory import (
