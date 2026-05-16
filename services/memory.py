@@ -137,7 +137,7 @@ def guardar_interaccion(numero, role, mensaje):
         if role == "user":
             nuevo = f"Cliente: {mensaje}"
         else:
-            nuevo = f"Bot: {mensaje}"
+            nuevo = f"BOT: {mensaje}"
         
         # Unir
         if historial_actual.strip():

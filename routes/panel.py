@@ -58,7 +58,7 @@ async def panel():
         with open(panel_path, "r", encoding="utf-8") as f:
             logger.info("✅ Panel HTML cargado")
             return f.read()
-    
+
     except Exception as e:
         logger.error(f"❌ Error: {e}")
         return f"<h1>Error: {e}</h1>"
