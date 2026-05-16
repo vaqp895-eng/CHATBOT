@@ -418,7 +418,7 @@
         <div class="sidebar">
             <div class="sidebar-header">
                 <h3>💬 Pendientes</h3>
-                <button class="btn-refrescar-chats" onclick="refrescarChatsManual()">🔄 Refr.</button>
+                <button class="btn-refrescar-chats" onclick="cargarChats()">🔄 Refrescar</button>
             </div>
             
             <div id="chats" class="chats-list">
@@ -694,7 +694,12 @@
             }, 60000);  // Cada 5 segundos
             console.log("✅ Auto-refresh ACTIVADO para historial");
         } else {
-            console.log("✅ Sin chat abierto. Sin auto-refresh.")
+            // Si no hay chat → recargar lista de chats
+            autoRefreshInterval = setInterval(() => {
+                console.log("⏱️ Auto-refrescando lista de chats...");
+                cargarChats();
+            }, 14400000);  // Cada4 horas
+            console.log("✅ Sin chat abierto. Sin auto-refresh.");
         }
     }
     // ===== ABRIR CHAT =====
