@@ -24,8 +24,6 @@ except Exception as e:
     print(f"⚠️  Error importando: {e}")
     IMPORTS_OK = False
 
-memory_store = {}
-
 # ===== SETUP LOGGING =====
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
