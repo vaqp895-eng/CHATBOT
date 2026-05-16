@@ -2,6 +2,7 @@ import time
 import threading
 from collections import deque
 from services.tools import buscar_modo_en_sheet, actualizar_sheet
+from services.tools import iniciar_google
 
 memory_store = {}
 lock = threading.Lock()
@@ -109,7 +110,52 @@ def guardar_interaccion(numero, role, mensaje):
         data["last_update"] = time.time()
         
     print(f"   🔓 Lock liberado\n")
-
+    print(f"   2️⃣ Sincronizando con Google Sheets...")
+    try:
+        sheet = iniciar_google()
+        if not sheet:
+            print(f"   ⚠️  Google Sheets no disponible (no crítico)")
+            return
+        
+        data_sheet = sheet.get_all_records()
+        
+        # Buscar cliente en Sheets
+        fila_existente = None
+        for i, row in enumerate(data_sheet):
+            if str(row.get("Numero", "")).strip() == str(numero).strip():
+                fila_existente = i + 2
+                break
+        
+        if not fila_existente:
+            print(f"   ⚠️  Cliente no encontrado en Sheets (no crítico)")
+            return
+        
+        # Leer historial actual de Sheets
+        historial_actual = data_sheet[fila_existente - 2].get("Historial", "") or ""
+        
+        # Construir nuevo mensaje
+        if role == "user":
+            nuevo = f"Cliente: {mensaje}"
+        else:
+            nuevo = f"Bot: {mensaje}"
+        
+        # Unir
+        if historial_actual.strip():
+            contexto_final = historial_actual + " | " + nuevo
+        else:
+            contexto_final = nuevo
+        
+        # Guardar en Sheets (columna 5 = Historial)
+        sheet.update_cell(fila_existente, 5, contexto_final)
+        
+        print(f"   ✅ Google Sheets sincronizado ({len(contexto_final)} chars)")
+        
+    except Exception as e:
+        print(f"   ⚠️  Error sincronizando Sheets: {str(e)}")
+        print(f"      (Memory_store ya tiene los datos, no es crítico)")
+    
+    print(f"   ✅ GUARDADO COMPLETADO (memory + sheets)\n")
+    
 def obtener_historial(numero):
     with lock:
         data = memory_store.get(numero)
