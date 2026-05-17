@@ -481,26 +481,67 @@
         .sugerencia-btn {
             padding: 10px 12px;
             background: white;
-            border: 2px solid;
-            border-image: linear-gradient(90deg, #8b5cf6, #ec4899, #f59e0b, #10b981) 1;
+            border: 2px solid transparent;
             border-radius: 8px;
             cursor: pointer;
             font-size: 13px;
             font-weight: 500;
             color: var(--gray-700);
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-align: left;
             line-height: 1.4;
+            position: relative;
+            overflow: hidden;
+            background-image: 
+                linear-gradient(white, white),
+                linear-gradient(90deg, #8b5cf6, #ec4899, #f59e0b, #10b981, #8b5cf6);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+            background-size: 100% 100%, 200% 100%;
         }
 
+
         .sugerencia-btn:hover {
-            background: linear-gradient(90deg, rgba(139, 92, 246, 0.05), rgba(236, 72, 153, 0.05));
+            background-image: 
+                linear-gradient(rgba(139, 92, 246, 0.08), rgba(139, 92, 246, 0.08)),
+                linear-gradient(90deg, #8b5cf6, #ec4899, #f59e0b, #10b981, #8b5cf6);
+            animation: borderFlow 3s linear infinite;
             transform: translateX(4px);
-            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.15);
+            box-shadow: 0 4px 16px rgba(139, 92, 246, 0.25);
         }
 
         .sugerencia-btn:active {
             transform: translateX(2px);
+        }
+
+        @keyframes borderFlow {
+            0% { background-position: 0% 0%, 0% 0%; }
+            100% { background-position: 0% 0%, 100% 0%; }
+        }
+
+        /* ===== ANIMACIÓN DE PULSO (cuando se hace click) ===== */
+        .sugerencia-btn.clicked {
+            animation: aiPulse 0.6s ease-out;
+        }
+
+        @keyframes aiPulse {
+            0% {
+                box-shadow: 
+                    0 0 0 0 rgba(139, 92, 246, 0.7),
+                    0 0 20px rgba(139, 92, 246, 0.5);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 
+                    0 0 0 10px rgba(139, 92, 246, 0),
+                    0 0 30px rgba(139, 92, 246, 0.8);
+            }
+            100% {
+                box-shadow: 
+                    0 0 0 0 rgba(139, 92, 246, 0),
+                    0 0 0px rgba(139, 92, 246, 0);
+                transform: scale(1);
+            }
         }
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
@@ -523,11 +564,7 @@
                 <h3>💬 Pendientes</h3>
                 <button class="btn-refrescar-chats" onclick="cargarChats()">🔄 Refrescar</button>
             </div>
-            <div style="text-align: right; padding-top: 8px; border-top: 1px solid var(--gray-200);">
-                <button id="btn-finalizar" class="btn-finalizar" onclick="finalizarConversacion()">
-                    ✅ Finalizar Chat
-                </button>
-            </div>
+            
             <div id="chats" class="chats-list">
                 <div class="empty-sidebar">Cargando chats...</div>
             </div>
@@ -540,7 +577,11 @@
                 <h2 id="header-numero">👨‍💼 Panel de Asesor</h2>
                 <p id="header-empresa">Selecciona un chat para ver el historial</p>
             </div>
-            
+            <div style="text-align: right; padding-top: 8px; border-top: 1px solid var(--gray-200);">
+                <button id="btn-finalizar" class="btn-finalizar" onclick="finalizarConversacion()">
+                    ✅ Finalizar Chat
+                </button>
+            </div>
             <!-- Chat Area -->
             <div id="messages" class="chat-area">
                 <div class="empty-state">Selecciona un chat para ver la conversación</div>
