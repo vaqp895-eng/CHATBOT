@@ -426,12 +426,12 @@ async def enviar_media(
             "Authorization": f"Bearer {ACCESS_TOKEN}",
             "Content-Type": "application/json"
         }
-        
+        tipo_meta = "image" if tipo == "imagen" else "document"
         payload = {
             "messaging_product": "whatsapp",
             "recipient_type": "individual",
             "to": numero,
-            "type": tipo
+            "type": tipo_meta
         }
         
         # Definimos el tipo de mensaje para Meta y el texto de respaldo para tus Sheets
