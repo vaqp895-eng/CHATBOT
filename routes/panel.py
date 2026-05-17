@@ -34,7 +34,7 @@ class SugerenciasInput(BaseModel):
     numero: str = Field(..., min_length=7, max_length=20)
 class ModoInput(BaseModel):
     numero: str = Field(..., min_length=7, max_length=20)
-    modo: str = Field(..., pattern="^(AUTO|HUMANO|CERRADO|CATALOGO)$")
+    modo: str = Field(..., pattern="^(AUTO|HUMANO|CATALOGO)$")
 # ===== MODELOS =====
 class RespuestaInput(BaseModel):
     numero: str = Field(..., min_length=7, max_length=20)

@@ -669,8 +669,8 @@
                         rows="3"
                         maxlength="4000"
                         style="flex: 1;min-height: 80px;"></textarea>          
-                    <div style="display: flex; flex-direction: column; gap: 8px;">
-                        <div style="display: flex; gap: 8px;">
+                    <div style="display: flex; flex-direction: column;gap: 6px; justify-content: space-between;">
+                        <div style="display: flex; gap: 6px;">
                             <button class="btn-secundario" onclick="enviarImagen()" title="Enviar imagen">
                                 🖼️ Imagen
                             </button>
@@ -900,7 +900,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     numero: numeroActual, 
-                    modo: 'CERRADO'
+                    modo: 'AUTO'
                 })
             });
             
