@@ -1,12 +1,13 @@
 import asyncio
 import os
 import logging
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, UploadFile, File, Form
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 import time
 from datetime import datetime
 from collections import deque
+import requests
 
 from services.ia_service import generar_sugerencias
 from services.memory import (
@@ -16,7 +17,8 @@ from services.memory import (
     obtener_historial,
     iniciar_google
 )
- 
+
+from routes.webhook import (PHONE_NUMBER_ID,ACCESS_TOKEN)
 try:
     from services.tools import iniciar_google, actualizar_sheet
     from services.memory import cambiar_modo, guardar_interaccion
@@ -373,7 +375,107 @@ async def responder(data: RespuestaInput):
     except Exception as e:
         logger.error(f"❌ Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
- 
+
+# ===== ENDPOINT: Enviar Multimedia (Imagen / Documento) =====
+@router.post("/enviar-media")
+async def enviar_media(
+    archivo: UploadFile = File(...),
+    numero: str = Form(...),
+    tipo: str = Form(...)
+):
+    """
+    Recibe un archivo real desde el panel, lo sube a Meta y lo envía por WhatsApp
+    """
+    logger.info(f"📦 Recibida solicitud de {tipo} para el número: {numero}")
+    
+    try:
+        # 1. Validaciones básicas
+        if not numero or len(numero) < 7:
+            raise ValueError("Número de teléfono inválido")
+        
+        # 2. Leer los bytes del archivo cargado
+        contenido_archivo = await archivo.read()
+        
+        # ⚠️ IMPORTANTE: Asegúrate de usar AQUÍ los mismos nombres de variables 
+        # globales que usas en tu función 'enviar_texto' (ej. WHATSAPP_TOKEN, PHONE_NUMBER_ID)
+        # Si las tienes guardadas en un archivo config, asegúrate de importarlas.
+        
+        # 3. Subir el archivo binario temporalmente a los servidores de Meta
+        url_meta_media = f"https://graph.facebook.com/v20.0/{PHONE_NUMBER_ID}/media"
+        headers_meta = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
+        
+        files = {
+            'file': (archivo.filename, contenido_archivo, archivo.content_type),
+            'messaging_product': (None, 'whatsapp'),
+            'type': (None, archivo.content_type)
+        }
+        
+        logger.info(f"📤 Subiendo '{archivo.filename}' a los servidores de Meta...")
+        response_media = requests.post(url_meta_media, headers=headers_meta, files=files)
+        
+        if response_media.status_code != 200:
+            logger.error(f"❌ Error subiendo archivo a Meta: {response_media.text}")
+            raise HTTPException(status_code=500, detail="No se pudo procesar el archivo en los servidores de WhatsApp")
+            
+        media_id = response_media.json().get("id")
+        logger.info(f"✅ Archivo subido con éxito a Meta. ID generado: {media_id}")
+
+        # 4. Enviar el ID multimedia al WhatsApp del cliente definitivo
+        url_mensajes = f"https://graph.facebook.com/v20.0/{PHONE_NUMBER_ID}/messages"
+        headers_mensajes = {
+            "Authorization": f"Bearer {ACCESS_TOKEN}",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "messaging_product": "whatsapp",
+            "recipient_type": "individual",
+            "to": numero,
+            "type": tipo
+        }
+        
+        # Definimos el tipo de mensaje para Meta y el texto de respaldo para tus Sheets
+        if tipo == "imagen":
+            payload["image"] = {"id": media_id}
+            texto_historial = f"🖼️ [Imagen enviada: {archivo.filename}]"
+        else:
+            payload["document"] = {"id": media_id, "filename": archivo.filename}
+            texto_historial = f"📄 [Documento enviado: {archivo.filename}]"
+
+        logger.info(f"🚀 Enviando objeto {tipo} definitivo al usuario...")
+        response_envio = requests.post(url_mensajes, headers=headers_mensajes, json=payload)
+
+        if response_envio.status_code != 200:
+            logger.error(f"❌ Error al enviar el mensaje multimedia final: {response_envio.text}")
+            raise HTTPException(status_code=500, detail="WhatsApp rechazó el envío del mensaje")
+
+        # 5. Sincronizar con Google Sheets e Historial (Idéntico a tu endpoint /responder)
+        logger.info(f"💾 Guardando registro en historial y Google Sheets...")
+        try:
+            guardar_interaccion(numero, "assistant", texto_historial)
+        except Exception as e:
+            logger.warning(f"⚠️ Error guardando interacción en Sheets: {e}")
+            
+        # 6. Forzar el Modo Humano para pausar la IA
+        try:
+            cambiar_modo(numero, "HUMANO")
+            logger.info(f"✅ Modo cambiado a HUMANO con éxito")
+        except Exception as e:
+            logger.warning(f"⚠️ Error cambiando modo del chat: {e}")
+
+        return {
+            "status": "ok",
+            "numero": numero,
+            "mensaje": f"{tipo.capitalize()} enviado correctamente"
+        }
+
+    except ValueError as e:
+        logger.error(f"❌ Validación de multimedia fallida: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"❌ Error crítico en enviar_media: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.post("/sugerencias")
 async def obtener_sugerencias(data: SugerenciasInput):
     """Genera 2 sugerencias de respuesta basadas en el chat"""
