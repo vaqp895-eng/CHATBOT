@@ -209,7 +209,20 @@
             padding: 20px;
             background-color: #ece5dd;
             background-image: 
-                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+                repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255, 255, 255, 0.3) 10px,
+                rgba(255, 255, 255, 0.3) 20px
+            ),
+            repeating-linear-gradient(
+                -45deg,
+                transparent,
+                transparent 10px,
+                rgba(255, 255, 255, 0.15) 10px,
+                rgba(255, 255, 255, 0.15) 20px
+            );
             position: relative;
         }
         .chat-area::before {
@@ -219,7 +232,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(180deg, rgba(236, 229, 221, 0.3) 0%, rgba(236, 229, 221, 0) 100%);
+            background: linear-gradient(180deg, rgba(236, 229, 221, 0.5) 0%, rgba(236, 229, 221, 0) 100%);
             pointer-events: none;
             z-index: 0;
         }
@@ -605,32 +618,34 @@
                     <div id="sugerencias" style="display: flex; flex-direction: column; gap: 6px;">
                     </div>
                 </div>
+            <div style="display: flex; gap: 12px; align-items: flex-start;">
                 <textarea 
                 id="mensaje" 
                 class="input-field" 
                 placeholder="Escribe tu respuesta aquí..."
                 rows="2"
-                maxlength="4000"></textarea>          
-            <div class="button-group" style="margin-bottom: 8px; margin-top: 8px;">
-                <button class="btn-secundario" onclick="enviarImagen()" title="Enviar imagen">
-                    🖼️ Imagen
-                </button>
-                <button class="btn-secundario" onclick="enviarDocumento()" title="Enviar documento">
-                    📄 Documento
-                </button>
-                <button class="btn-secundario" onclick="enviarUbicacion()" title="Enviar ubicación">
-                    📍 Ubicación
-                </button>
-                <button class="btn-secundario" onclick="cargarSugerencias()" title="Sugerencias IA">
-                    ✨ IA
-                </button>
-                </div>
-                <div class="button-group">
-                    <button id="btn-enviar" class="btn-enviar" onclick="enviarRespuesta()" style="flex: 1;">
-                        📤 Enviar
+                maxlength="4000"
+                style="flex: 1;"></textarea>          
+                <div style="display: flex; flex-direction: column; gap: 8px; min-width: 100px;">
+                    <button class="btn-secundario" onclick="enviarImagen()" title="Enviar imagen">
+                        🖼️ Imagen
+                    </button>
+                    <button class="btn-secundario" onclick="enviarDocumento()" title="Enviar documento">
+                        📄 Documento
+                    </button>
+                    <button class="btn-secundario" onclick="enviarUbicacion()" title="Enviar ubicación">
+                        📍 Ubicación
+                    </button>
+                    <button class="sugerencia-btn" onclick="cargarSugerencias()" title="Sugerencias IA">
+                        ✨ IA
                     </button>
                 </div>
+            </div>
+                <button id="btn-enviar" class="btn-enviar" onclick="enviarRespuesta()" style="flex: 1;">
+                    📤 Enviar
+                </button>
                 <div id="char-count" class="char-count"></div>
+                </div>
             </div>
             
         </div>
