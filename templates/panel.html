@@ -6,8 +6,8 @@
     <title>Panel Asesor - New Sneaker</title>
     <style>
         :root {
-            --primary: #667eea;
-            --primary-dark: #5568d3;
+            --primary: #33407b;
+            --primary-dark: rgb(135, 85, 211);
             --secondary: #f093fb;
             --success: #4caf50;
             --danger: #ff5252;
@@ -207,7 +207,15 @@
             flex: 1;
             overflow-y: auto;
             padding: 24px;
-            background: var(--gray-50);
+            background: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%);  /* Gris WhatsApp */
+            background-image: 
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(255,255,255,.05) 2px,
+                    rgba(255,255,255,.05) 4px
+                );
         }
         
         .message {
@@ -434,10 +442,6 @@
         .btn-secundario:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-        }
-        .chat-area::-webkit-scrollbar-thumb:hover,
-        .chats-list::-webkit-scrollbar-thumb:hover {
-            background: var(--gray-400);
         }
         
         /* ===== RESPONSIVE ===== */
@@ -801,7 +805,7 @@
             let html = '';
             historial.forEach(msg => {
                 const isUser = msg.role === 'user';
-                const classe = isUser ? 'assistant' : 'user';
+                const classe = isUser ? 'user' : 'assistant';
                 const avatar = isUser ? 'IA/Usted' : 'Cliente';
  
                 html += `
