@@ -64,7 +64,8 @@ def cambiar_modo(numero, nuevo_modo):
                 "historial": deque(maxlen=MAX_MENSAJES),
                 "last_update": time.time(),
                 "modo": nuevo_modo,
-                "last_mode_check": time.time()
+                "last_mode_check": time.time(),
+                "last_message_time": time.time()
             }
             print(f"   ✅ Usuario creado en memory_store con modo {nuevo_modo}")
         
@@ -183,3 +184,20 @@ def eliminar_mas_antiguo():
         key=lambda k: memory_store[k]["last_update"]
     )
     del memory_store[usuario_mas_antiguo]
+
+def auto_cerrar_chats_inactivos():
+    """Cierra chats sin actividad hace 1 hora"""
+    INACTIVIDAD_LIMIT = 3600  # 1 hora en segundos
+    
+    with lock:
+        ahora = time.time()
+        for numero, data in list(memory_store.items()):
+            ultimo_mensaje = data.get("last_message_time", ahora)
+            
+            # Si pasó 1 hora sin mensajes y está en HUMANO
+            if (ahora - ultimo_mensaje > INACTIVIDAD_LIMIT and 
+                data.get("modo") == "HUMANO"):
+                
+                data["modo"] = "CERRADO"
+                print(f"⏱️ Auto-cerrado: {numero} (1 hora de inactividad)")
+                actualizar_sheet(numero, "CERRADO")

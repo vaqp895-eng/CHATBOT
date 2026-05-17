@@ -400,6 +400,24 @@
             width: 6px;
         }
         
+        .btn-finalizar {
+            padding: 8px 12px;
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-finalizar:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 12px rgba(76, 175, 80, 0.4);
+        }
+
         .chat-area::-webkit-scrollbar-track,
         .chats-list::-webkit-scrollbar-track {
             background: transparent;
@@ -511,6 +529,11 @@
                     </button>
                 </div>
                 <div id="char-count" class="char-count"></div>
+            </div>
+            <div style="text-align: right; padding-top: 8px; border-top: 1px solid var(--gray-200);">
+                <button id="btn-finalizar" class="btn-finalizar" onclick="finalizarConversacion()">
+                    ✅ Finalizar Chat
+                </button>
             </div>
         </div>
     </div>
@@ -706,6 +729,38 @@
         }
     }
     
+    // ===== FINALIZAR CONVERSACIÓN =====
+    async function finalizarConversacion() {
+        if (!numeroActual) {
+            alert('No hay chat abierto');
+            return;
+        }
+        
+        if (!confirm('¿Cerrar esta conversación?')) return;
+        
+        try {
+            const response = await fetch(`${API_BASE}/panel/modo`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    numero: numeroActual, 
+                    modo: 'CERRADO'  // ← Nuevo estado
+                })
+            });
+            
+            if (response.ok) {
+                alert('✅ Chat cerrado');
+                numeroActual = null;
+                document.getElementById('messages').innerHTML = 
+                    '<div class="empty-state">Conversación finalizada</div>';
+                document.getElementById('header-numero').textContent = '👋 Panel de Asesor';
+                document.getElementById('header-empresa').textContent = 'Chat cerrado';
+            }
+        } catch (error) {
+            alert('❌ Error: ' + error.message);
+        }
+    }
+
     // ===== RENDERIZAR CHATS =====
     function renderizarChats(chats) {
         const chatsDiv = document.getElementById('chats');
@@ -908,6 +963,27 @@
             btn.disabled = false;
             btn.style.opacity = '1';
             btn.textContent = textoOriginal;
+        }
+    }
+
+    // ===== SUGERENCIAS DE IA =====
+    async function obtenerSugerencias() {
+        if (!numeroActual) return;
+        
+        const historial = document.getElementById('messages').innerText;
+        
+        try {
+            const response = await fetch(`${API_BASE}/panel/sugerencias`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ numero: numeroActual, historial })
+            });
+            
+            const data = await response.json();
+            // Mostrar 3 opciones clickeables
+            alert('Sugerencias:\n1) ' + data.sugerencias.join('\n2) '));
+        } catch (error) {
+            console.error('Error:', error);
         }
     }
 

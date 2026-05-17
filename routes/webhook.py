@@ -11,7 +11,7 @@ import os
 import asyncio
 import time
 from services.tools import registrar_lead
-from services.memory import obtener_historial
+from services.memory import obtener_historial, memory_store, lock
 
 load_dotenv()
 
@@ -219,6 +219,9 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             return {"status": "modo_humano_mensaje_guardado"}
     
         background_tasks.add_task(procesar_ia_y_enviar, mensaje, empresa, numero_cliente,mensaje_id)
+        with lock:
+            if numero_cliente in memory_store:
+                memory_store[numero_cliente]["last_message_time"] = time.time()
         return {"status": "ok"}
     except Exception as e:
         print("ERROR WEBHOOK:", str(e))
