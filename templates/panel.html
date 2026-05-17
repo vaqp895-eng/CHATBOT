@@ -620,34 +620,37 @@
             </div>
             
             <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; justify-content: flex-start;">
+                    <button class="sugerencia-btn" onclick="cargarSugerencias()" title="Sugerencias IA">
+                        ✨ IA
+                    </button>
+                </div>
                 <div style="display: flex; gap: 12px; align-items: flex-start;">
                     <textarea 
                         id="mensaje" 
                         class="input-field" 
                         placeholder="Escribe tu respuesta aquí..."
-                        rows="2"
+                        rows="3"
                         maxlength="4000"
-                        style="flex: 1;"></textarea>          
-                    <div style="display: flex; flex-direction: column; gap: 8px; min-width: 110px;">
-                        <button class="btn-secundario" onclick="enviarImagen()" title="Enviar imagen">
-                            🖼️ Imagen
+                        style="flex: 1;min-height: 80px;"></textarea>          
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn-secundario" onclick="enviarImagen()" title="Enviar imagen">
+                                🖼️ Imagen
+                            </button>
+                            <button class="btn-secundario" onclick="enviarDocumento()" title="Enviar documento">
+                                📄 Documento
+                            </button>
+                            <button class="btn-secundario" onclick="enviarUbicacion()" title="Enviar ubicación">
+                                📍 Ubicación
+                            </button>
+                        </div>
+                        <button id="btn-enviar" class="btn-enviar" onclick="enviarRespuesta()" style="width: 100%;">
+                            📤 Enviar
                         </button>
-                        <button class="btn-secundario" onclick="enviarDocumento()" title="Enviar documento">
-                            📄 Documento
-                        </button>
-                        <button class="btn-secundario" onclick="enviarUbicacion()" title="Enviar ubicación">
-                            📍 Ubicación
-                        </button>
-                        <button class="sugerencia-btn" onclick="cargarSugerencias()" title="Sugerencias IA">
-                            ✨ IA
-                        </button>
-                    </div>  <!-- ← AQUÍ SIN DOBLE >> -->
-                </div>
-                <button id="btn-enviar" class="btn-enviar" onclick="enviarRespuesta()" style="width: 100%;">
-                    📤 Enviar
-                </button>
+                    </div> 
+                </div>                
             </div>
-            
             <div id="char-count" class="char-count"></div>
         </div>
     </div> 
