@@ -207,8 +207,12 @@
             flex: 1;
             overflow-y: auto;
             padding: 20px;
-            background-color: #ece5dd;
             position: relative;
+            background-color: #ece5dd;
+            background-image: url('/static/fondo_imagen.jpg');
+            background-repeat: repeat;
+            background-size: 160px;
+            background-attachment: fixed;
         }
         .chat-area::before {
             content: '';
@@ -221,7 +225,7 @@
             background-repeat: repeat;
             background-size: 160px;
             opacity: 0.09;
-            background-attachment: local;
+            background-attachment: scroll;
             pointer-events: none;
             z-index: 0;
         }
