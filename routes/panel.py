@@ -29,17 +29,17 @@ except Exception as e:
 # ===== SETUP LOGGING =====
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
- 
+
+class SugerenciasInput(BaseModel):
+    numero: str = Field(..., min_length=7, max_length=20)
+class ModoInput(BaseModel):
+    numero: str = Field(..., min_length=7, max_length=20)
+    modo: str = Field(..., pattern="^(AUTO|HUMANO|CERRADO|CATALOGO)$")
 # ===== MODELOS =====
 class RespuestaInput(BaseModel):
     numero: str = Field(..., min_length=7, max_length=20)
     mensaje: str = Field(..., min_length=1, max_length=4000)
- 
-class ModoInput(BaseModel):
-    numero: str = Field(..., min_length=7, max_length=20)
-    # ✅ CORREGIDO: regex → pattern (Pydantic v2)
-    modo: str = Field(..., pattern="^(AUTO|HUMANO|CATALOGO)$")
- 
+  
 # ===== ROUTER =====
 router = APIRouter(prefix="/panel", tags=["Panel Asesor"])
  
@@ -375,7 +375,7 @@ async def responder(data: RespuestaInput):
         raise HTTPException(status_code=500, detail=str(e))
  
 @router.post("/sugerencias")
-async def obtener_sugerencias(data: RespuestaInput):
+async def obtener_sugerencias(data: SugerenciasInput):
     """Genera 2 sugerencias de respuesta basadas en el chat"""
     numero = data.numero
     

@@ -523,7 +523,11 @@
                 <h3>💬 Pendientes</h3>
                 <button class="btn-refrescar-chats" onclick="cargarChats()">🔄 Refrescar</button>
             </div>
-            
+            <div style="text-align: right; padding-top: 8px; border-top: 1px solid var(--gray-200);">
+                <button id="btn-finalizar" class="btn-finalizar" onclick="finalizarConversacion()">
+                    ✅ Finalizar Chat
+                </button>
+            </div>
             <div id="chats" class="chats-list">
                 <div class="empty-sidebar">Cargando chats...</div>
             </div>
@@ -533,7 +537,7 @@
         <div class="main">
             <!-- Header -->
             <div class="header" id="header">
-                <h2 id="header-numero">👋 Panel de Asesor</h2>
+                <h2 id="header-numero">👨‍💼 Panel de Asesor</h2>
                 <p id="header-empresa">Selecciona un chat para ver el historial</p>
             </div>
             
@@ -553,25 +557,17 @@
                         <!-- Se llenan dinámicamente -->
                     </div>
                 </div>
-            
+                        
+            <div class="button-group">
+                <button class="btn-secundario" onclick="cargarSugerencias()" title="Cargar sugerencias IA">
+                    💡 Sugerencias
+                </button>
             <textarea 
                 id="mensaje" 
                 class="input-field" 
                 placeholder="Escribe tu respuesta aquí..."
                 rows="2"
-                maxlength="4000"></textarea>
-            
-            <div class="button-group">
-                <button class="btn-secundario" onclick="cargarSugerencias()" title="Cargar sugerencias IA">
-                    💡 Sugerencias
-                </button>
-                <textarea 
-                    id="mensaje" 
-                    class="input-field" 
-                    placeholder="Escribe tu respuesta aquí..."
-                    rows="2"
-                    maxlength="4000"></textarea>
-                
+                maxlength="4000"></textarea>    
                 <div class="button-group">
                     <button class="btn-secundario" onclick="enviarImagen()" title="Enviar imagen">
                         🖼️ Imagen
@@ -588,11 +584,7 @@
                 </div>
                 <div id="char-count" class="char-count"></div>
             </div>
-            <div style="text-align: right; padding-top: 8px; border-top: 1px solid var(--gray-200);">
-                <button id="btn-finalizar" class="btn-finalizar" onclick="finalizarConversacion()">
-                    ✅ Finalizar Chat
-                </button>
-            </div>
+            
         </div>
     </div>
  
@@ -650,7 +642,7 @@
             
             console.log(`✅ ${chatsData.length} chats cargados (UNA VEZ)`);
             renderizarChats(chatsData);
-            cargarNumeros();
+
             
             chatsLoadedOnce = true;  // ← Marcar como cargado
         } catch (error) {
@@ -768,7 +760,6 @@
             console.log(`✅ ${chatsData.length} chats pendientes cargados`);
             
             renderizarChats(chatsData);
-            cargarNumeros();
  
         } catch (error) {
             console.error('❌ Error:', error);
@@ -948,31 +939,6 @@
         }
     }
  
-    // ===== CARGAR NÚMEROS =====
-    async function cargarNumeros() {
-        try {
-            const response = await fetch(`${API_BASE}/panel/numeros`);
-            if (!response.ok) throw new Error('Error cargando números');
- 
-            const data = await response.json();
-            const numeros = data.numeros || [];
- 
-            const select = document.getElementById('numero-select');
-            select.innerHTML = '<option value="">-- Seleccionar cliente --</option>';
- 
-            numeros.forEach(num => {
-                const option = document.createElement('option');
-                option.value = num.numero;
-                option.textContent = num.nombre;
-                select.appendChild(option);
-            });
- 
-            console.log(`✅ ${numeros.length} números cargados en dropdown`);
- 
-        } catch (error) {
-            console.error('⚠️  Error cargando números:', error);
-        }
-    }
     
     // ===== ENVIAR RESPUESTA (MEJORADO) =====
     async function enviarRespuesta() {
