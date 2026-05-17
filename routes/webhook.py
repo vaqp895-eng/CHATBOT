@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Response, BackgroundTasks
-from services.memory import obtener_modo
+from services.memory import guardar_interaccion, obtener_modo
 from models.empresa import get_empresa_by_numer
 from services.router import answer
 from utils.text import clean_text
@@ -211,6 +211,11 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         registrar_lead(numero_cliente, mensaje, empresa, historial, modo=modo)
         if modo == "HUMANO":
             print("\n👨‍💼 Chat en modo humano. IA bloqueada.\n")
+            try:
+                guardar_interaccion(numero_cliente, "user", mensaje)
+                print("✅ Mensaje guardado en memory_store")
+            except Exception as e:
+                print(f"⚠️  Error guardando en memory: {e}")
             return {"status": "modo_humano_mensaje_guardado"}
     
         background_tasks.add_task(procesar_ia_y_enviar, mensaje, empresa, numero_cliente,mensaje_id)
