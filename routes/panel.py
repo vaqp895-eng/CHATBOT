@@ -8,7 +8,7 @@ import time
 from datetime import datetime
 from collections import deque
 
-from chatbot.services.ia_service import generar_sugerencias
+from services.ia_service import generar_sugerencias
 from services.memory import (
     memory_store, 
     lock, 
