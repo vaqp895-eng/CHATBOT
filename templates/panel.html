@@ -281,9 +281,12 @@
         
         /* ===== INPUT AREA ===== */
         .input-area {
-            padding: 16px 24px;
+            padding: 16px 20px;
             border-top: 1px solid var(--gray-200);
-            background: white;
+            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
         
         .alert {
@@ -319,14 +322,15 @@
         
         .input-field {
             flex: 1;
-            padding: 10px 12px;
+            padding: 12px 14px;
             border: 1px solid var(--gray-300);
-            border-radius: 8px;
+            border-radius: 12px;
             font-size: 14px;
             font-family: inherit;
             resize: none;
             max-height: 80px;
             transition: all 0.2s;
+            background: white;
         }
         
         .input-field:focus {
@@ -338,7 +342,11 @@
         .input-field::placeholder {
             color: var(--gray-400);
         }
-        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
         .btn-enviar {
             padding: 10px 20px;
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
@@ -395,18 +403,24 @@
         }
         /* ===== BOTONES SECUNDARIOS ===== */
         .btn-secundario {
-            padding: 10px 12px;
+            padding: 10px 14px;
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             color: white;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 13px;
+            font-weight: 600;
             transition: all 0.2s;
             box-shadow: 0 2px 6px rgba(245, 87, 108, 0.3);
+            white-space: nowrap;
         }
 
         .btn-secundario:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+        }
+        .btn-secundario:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
         }
@@ -414,7 +428,9 @@
         .btn-secundario:active {
             transform: translateY(0);
         }
-
+        .btn-secundario:active:not(:disabled) {
+            transform: translateY(0);
+        }
         .btn-secundario:disabled {
             opacity: 0.6;
             cursor: not-allowed;
@@ -468,35 +484,26 @@
             <div class="input-area">
                 <div id="alert-respuesta" class="alert"></div>
                 
-                <div class="input-wrapper">
-                    <textarea 
-                        id="mensaje" 
-                        class="input-field" 
-                        placeholder="Escribe tu respuesta aquí..."
-                        rows="2"
-                        maxlength="4000"></textarea>
-                    <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                        <button class="btn-secundario" onclick="enviarImagen()" title="Enviar imagen">
-                            🖼️ Imagen
-                        </button>
-                        <button class="btn-secundario" onclick="enviarDocumento()" title="Enviar documento">
-                            📄 Documento
-                        </button>
-                        <button class="btn-secundario" onclick="enviarUbicacion()" title="Enviar ubicación">
-                            📍 Ubicación
-                        </button>
-                    </div>
-
-                    <div class="input-wrapper">
-                        <textarea 
-                            id="mensaje" 
-                            class="input-field" 
-                            placeholder="Escribe tu respuesta aquí..."
-                            rows="2"
-                            maxlength="4000"></textarea>
-                        <button id="btn-enviar" class="btn-enviar" onclick="enviarRespuesta()">
-                            📤 Enviar
-                        </button>
+                <textarea 
+                    id="mensaje" 
+                    class="input-field" 
+                    placeholder="Escribe tu respuesta aquí..."
+                    rows="2"
+                    maxlength="4000"></textarea>
+                
+                <div class="button-group">
+                    <button class="btn-secundario" onclick="enviarImagen()" title="Enviar imagen">
+                        🖼️ Imagen
+                    </button>
+                    <button class="btn-secundario" onclick="enviarDocumento()" title="Enviar documento">
+                        📄 Documento
+                    </button>
+                    <button class="btn-secundario" onclick="enviarUbicacion()" title="Enviar ubicación">
+                        📍 Ubicación
+                    </button>
+                    <button id="btn-enviar" class="btn-enviar" onclick="enviarRespuesta()">
+                        📤 Enviar
+                    </button>
                 </div>
                 <div id="char-count" class="char-count"></div>
             </div>
@@ -753,7 +760,6 @@
         const chat = chatsData.find(c => c.numero === numero);
         if (chat) {
             document.getElementById('header-empresa').textContent = `${chat.empresa} • ${chat.modo}`;
-            document.getElementById('header-modo').textContent = chat.servicio;
             }
  
         // Marcar como activo
