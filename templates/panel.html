@@ -744,7 +744,17 @@
     }
 
     // ===== ENVIAR IMAGEN =====
-    async function enviarImagen(tipo) {
+    async function enviarImagen() {
+        if (!numeroActual) {
+            alert('Selecciona un chat primero');
+            return;
+        }
+        fileInput.accept = 'image/*';
+        fileInput.onchange = () => enviarArchivo('imagen'); // Al seleccionar, procesa la imagen
+        fileInput.click(); // 👈 Esto es lo que abre la ventana para elegir la foto
+    }
+
+    async function enviarArchivo(tipo) {
         const file = fileInput.files[0];
         if (!file) return;
 
@@ -752,24 +762,24 @@
         const formData = new FormData();
         formData.append('archivo', file);
         formData.append('numero', numeroActual);
-        formData.append('tipo', tipo); // 'imagen' o 'documento'
+        formData.append('tipo', tipo); // Recibe 'imagen' o 'documento'
 
         try {
-            // ATENCIÓN: Tu backend debe tener una ruta preparada para recibir FormData
             const response = await fetch(`${API_BASE}/panel/enviar-media`, {
                 method: 'POST',
-                body: formData // No usamos JSON.stringify aquí, ni 'Content-Type' en los headers
+                body: formData // Sin JSON.stringify ni Content-Type manual
             });
             
             if (response.ok) {
                 alert(`✅ ${tipo} enviado exitosamente`);
                 setTimeout(cargarChats, 2000);
+            } else {
+                alert(`❌ Error en el servidor al enviar ${tipo}`);
             }
         } catch (e) {
-            alert(`❌ Error enviando ${tipo}`);
+            alert(`❌ Error de red enviando ${tipo}`);
         }
     }
-
     async function enviarDocumento() {
         if (!numeroActual) {
             alert('Selecciona un chat primero');
