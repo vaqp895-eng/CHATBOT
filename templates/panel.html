@@ -221,6 +221,7 @@
             background-repeat: repeat;
             background-size: 160px;
             opacity: 0.06;
+            background-attachment: fixed;
             pointer-events: none;
             z-index: 0;
         }
@@ -377,6 +378,7 @@
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
+            justify-content: center;
             align-items: center;
             gap: 6px;
             min-width: 110px;
@@ -743,14 +745,30 @@
     }
 
     // ===== ENVIAR IMAGEN =====
-    async function enviarImagen() {
-        if (!numeroActual) {
-            alert('Selecciona un chat primero');
-            return;
+    async function enviarImagen(tipo) {
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        // Usamos FormData para enviar el archivo real, no texto
+        const formData = new FormData();
+        formData.append('archivo', file);
+        formData.append('numero', numeroActual);
+        formData.append('tipo', tipo); // 'imagen' o 'documento'
+
+        try {
+            // ATENCIÓN: Tu backend debe tener una ruta preparada para recibir FormData
+            const response = await fetch(`${API_BASE}/panel/enviar-media`, {
+                method: 'POST',
+                body: formData // No usamos JSON.stringify aquí, ni 'Content-Type' en los headers
+            });
+            
+            if (response.ok) {
+                alert(`✅ ${tipo} enviado exitosamente`);
+                setTimeout(cargarChats, 2000);
+            }
+        } catch (e) {
+            alert(`❌ Error enviando ${tipo}`);
         }
-        fileInput.accept = 'image/*';
-        fileInput.onchange = () => enviarArchivo('imagen');
-        fileInput.click();
     }
 
     async function enviarDocumento() {
@@ -836,8 +854,9 @@
     // ===== CARGAR CHATS =====
     async function cargarChats() {
         const alertDiv = document.getElementById('alert-chats');
-        alertDiv.classList.remove('show');
-        
+        if (alertDiv) {
+            alertDiv.classList.remove('show');
+        }
         try {
             console.log('📊 Cargando chats pendientes...');
             const response = await fetch(`${API_BASE}/panel/chats`);
