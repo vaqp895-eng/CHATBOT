@@ -1,3 +1,4 @@
+import asyncio
 import os
 import logging
 from fastapi import APIRouter, HTTPException, Query
@@ -7,6 +8,7 @@ import time
 from datetime import datetime
 from collections import deque
 
+from chatbot.services.ia_service import generar_sugerencias
 from services.memory import (
     memory_store, 
     lock, 
@@ -372,7 +374,44 @@ async def responder(data: RespuestaInput):
         logger.error(f"❌ Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
  
- 
+@router.post("/sugerencias")
+async def obtener_sugerencias(data: RespuestaInput):
+    """Genera 2 sugerencias de respuesta basadas en el chat"""
+    numero = data.numero
+    
+    try:
+        logger.info(f"💡 Generando sugerencias para {numero}...")
+        
+        # Obtener historial
+        historial_memoria = obtener_historial(numero)
+        
+        if not historial_memoria:
+            return {
+                "sugerencias": [
+                    "¿En qué te puedo ayudar?",
+                    "Cuéntame más detalles"
+                ]
+            }
+        
+        # Llamar a la función de ai_service
+        
+        sugerencias = await asyncio.to_thread(generar_sugerencias, historial_memoria)
+        
+        logger.info(f"✅ Sugerencias generadas: {sugerencias}")
+        
+        return {
+            "sugerencias": sugerencias
+        }
+    
+    except Exception as e:
+        logger.error(f"❌ Error en sugerencias: {e}")
+        return {
+            "sugerencias": [
+                "¿En qué te puedo ayudar?",
+                "Cuéntame más detalles"
+            ]
+        }
+
 # ===== ENDPOINT: Cambiar Modo =====
 @router.post("/modo")
 async def cambiar_modo_endpoint(data: ModoInput):

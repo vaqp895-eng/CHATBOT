@@ -93,3 +93,62 @@ def generar_respuesta_ia(mensaje, empresa, historial):
     except Exception as e:
         print("Error IA:", e)
         return "⚠️ Un asesor te responderá en breve."
+    
+def generar_sugerencias(historial):
+    """Genera 2 sugerencias de respuesta basadas en el chat"""
+    try:
+        # Construir contexto con últimos 3 mensajes
+        context = ""
+        for h in historial[-3:]:
+            role = "Cliente" if h['role'] == 'user' else "Asesor"
+            context += f"{role}: {h['content']}\n"
+        
+        if not context.strip():
+            return [
+                "¿En qué te puedo ayudar?",
+                "Cuéntame más detalles"
+            ]
+        
+        prompt = f"""Basándote en esta conversación, genera EXACTAMENTE 2 sugerencias cortas (máx 60 caracteres cada una) para responder al cliente. 
+Conversación:
+{context}
+Formato:
+1. [Primera sugerencia]
+2. [Segunda sugerencia]
+Solo responde con las 2 sugerencias, sin explicaciones."""
+
+        response = model.generate_content(prompt)
+        texto = response.text.strip()
+        
+        # Parsear las sugerencias
+        sugerencias = []
+        for line in texto.split("\n"):
+            line = line.strip()
+            if line and line[0].isdigit():
+                # Extraer texto después del número y punto
+                if ". " in line:
+                    sugerencia = line.split(". ", 1)[1]
+                else:
+                    sugerencia = line
+                
+                # Limpiar caracteres especiales
+                sugerencia = sugerencia.strip("[]")
+                sugerencias.append(sugerencia)
+        
+        # Devolver solo 2 sugerencias
+        if len(sugerencias) >= 2:
+            return sugerencias[:2]
+        elif len(sugerencias) == 1:
+            return sugerencias + ["¿Hay algo más que quieras saber?"]
+        else:
+            return [
+                "¿En qué más te ayudo?",
+                "¿Tienes alguna otra pregunta?"
+            ]
+            
+    except Exception as e:
+        print(f"❌ Error generando sugerencias: {e}")
+        return [
+            "¿En qué te puedo ayudar?",
+            "Cuéntame más detalles"
+        ]

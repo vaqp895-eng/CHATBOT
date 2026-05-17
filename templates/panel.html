@@ -400,22 +400,33 @@
             width: 6px;
         }
         
+        /* ===== BOTÓN FINALIZAR ===== */
         .btn-finalizar {
-            padding: 8px 12px;
-            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            padding: 10px 14px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 12px;
+            font-size: 13px;
             transition: all 0.2s;
-            box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+            box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+            white-space: nowrap;
         }
 
-        .btn-finalizar:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 3px 12px rgba(76, 175, 80, 0.4);
+        .btn-finalizar:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-finalizar:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-finalizar:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .chat-area::-webkit-scrollbar-track,
@@ -462,7 +473,35 @@
             opacity: 0.6;
             cursor: not-allowed;
         }
-        
+        /* ===== SUGERENCIAS IA ===== */
+        #sugerencias-container {
+            margin-bottom: 12px;
+        }
+
+        .sugerencia-btn {
+            padding: 10px 12px;
+            background: white;
+            border: 2px solid;
+            border-image: linear-gradient(90deg, #8b5cf6, #ec4899, #f59e0b, #10b981) 1;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--gray-700);
+            transition: all 0.2s;
+            text-align: left;
+            line-height: 1.4;
+        }
+
+        .sugerencia-btn:hover {
+            background: linear-gradient(90deg, rgba(139, 92, 246, 0.05), rgba(236, 72, 153, 0.05));
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.15);
+        }
+
+        .sugerencia-btn:active {
+            transform: translateX(2px);
+        }
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .container {
@@ -506,7 +545,26 @@
             <!-- Input Area -->
             <div class="input-area">
                 <div id="alert-respuesta" class="alert"></div>
-                
+                <div id="sugerencias-container" style="margin-bottom: 12px; display: none;">
+                    <div style="font-size: 12px; color: var(--gray-600); margin-bottom: 8px; font-weight: 600;">
+                        💡 Sugerencias de IA:
+                    </div>
+                    <div id="sugerencias" style="display: flex; flex-direction: column; gap: 8px;">
+                        <!-- Se llenan dinámicamente -->
+                    </div>
+                </div>
+            
+            <textarea 
+                id="mensaje" 
+                class="input-field" 
+                placeholder="Escribe tu respuesta aquí..."
+                rows="2"
+                maxlength="4000"></textarea>
+            
+            <div class="button-group">
+                <button class="btn-secundario" onclick="cargarSugerencias()" title="Cargar sugerencias IA">
+                    💡 Sugerencias
+                </button>
                 <textarea 
                     id="mensaje" 
                     class="input-field" 
@@ -738,26 +796,34 @@
         
         if (!confirm('¿Cerrar esta conversación?')) return;
         
+        const btn = document.getElementById('btn-finalizar');
+        btn.disabled = true;
+        
         try {
             const response = await fetch(`${API_BASE}/panel/modo`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     numero: numeroActual, 
-                    modo: 'CERRADO'  // ← Nuevo estado
+                    modo: 'CERRADO'
                 })
             });
             
             if (response.ok) {
-                alert('✅ Chat cerrado');
+                alert('✅ Chat cerrado correctamente');
                 numeroActual = null;
                 document.getElementById('messages').innerHTML = 
-                    '<div class="empty-state">Conversación finalizada</div>';
+                    '<div class="empty-state">Selecciona un chat para ver la conversación</div>';
                 document.getElementById('header-numero').textContent = '👋 Panel de Asesor';
-                document.getElementById('header-empresa').textContent = 'Chat cerrado';
+                document.getElementById('header-empresa').textContent = 'Selecciona un chat para ver el historial';
+                document.getElementById('mensaje').value = '';
+                document.getElementById('sugerencias-container').style.display = 'none';
             }
         } catch (error) {
+            console.error('Error:', error);
             alert('❌ Error: ' + error.message);
+        } finally {
+            btn.disabled = false;
         }
     }
 
@@ -967,26 +1033,57 @@
     }
 
     // ===== SUGERENCIAS DE IA =====
-    async function obtenerSugerencias() {
-        if (!numeroActual) return;
+    async function cargarSugerencias() {
+        if (!numeroActual) {
+            alert('Selecciona un chat primero');
+            return;
+        }
         
-        const historial = document.getElementById('messages').innerText;
+        const btn = document.querySelector('button[onclick="cargarSugerencias()"]');
+        btn.disabled = true;
+        btn.textContent = '⏳ Cargando...';
         
         try {
             const response = await fetch(`${API_BASE}/panel/sugerencias`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ numero: numeroActual, historial })
+                body: JSON.stringify({ numero: numeroActual })
             });
             
+            if (!response.ok) throw new Error('Error cargando sugerencias');
+            
             const data = await response.json();
-            // Mostrar 3 opciones clickeables
-            alert('Sugerencias:\n1) ' + data.sugerencias.join('\n2) '));
+            mostrarSugerencias(data.sugerencias || []);
+            
         } catch (error) {
             console.error('Error:', error);
+            alert('❌ Error cargando sugerencias');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '💡 Sugerencias';
         }
     }
-
+    function mostrarSugerencias(sugerencias) {
+        const container = document.getElementById('sugerencias-container');
+        const div = document.getElementById('sugerencias');
+        
+        div.innerHTML = '';
+        
+        sugerencias.slice(0, 2).forEach((sugerencia, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'sugerencia-btn';
+            btn.textContent = sugerencia;
+            btn.type = 'button';
+            btn.onclick = () => {
+                document.getElementById('mensaje').value = sugerencia;
+                document.getElementById('char-count').textContent = `${sugerencia.length}/4000`;
+                container.style.display = 'none';
+            };
+            div.appendChild(btn);
+        });
+        
+        container.style.display = 'block';
+    }
     // ===== SELECCIONAR DESDE LISTA =====
     function seleccionarDesdeLista() {
         const numero = document.getElementById('numero-select').value;
