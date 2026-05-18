@@ -206,36 +206,13 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             print("❌ No se encontró la empresa. Abortando envío.")
             return {"reply": "Empresa no configurada"}
         mensaje = clean_text(mensaje)
-
-        print(f"\n{'='*60}")
-        print(f"🔍 DEBUG WEBHOOK COMPLETO")
-        print(f"{'='*60}")
-        print(f"📱 Número cliente: {numero_cliente}")
-        print(f"💬 Mensaje recibido: {mensaje[:100]}")
         modo = obtener_modo(numero_cliente)
-        print(f"🆓 Modo obtenido: {modo}")
         historial = obtener_historial(numero_cliente)
-        print(f"📚 Historial actual: {len(historial)} mensajes")
         registrar_lead(numero_cliente, mensaje, empresa, historial, modo=modo)
         print(f"✅ Lead registrado en Sheets")
-        print(f"\n🚨 VERIFICANDO MODO...")
-        print(f"\n🚨 VERIFICANDO MODO...")
-        if modo == "HUMANO":
-            print(f"✅ MODO == HUMANO, GUARDANDO EN MEMORY...")
-        else:
-            print(f"❌ MODO != HUMANO (es: {modo}), NO ENTRA A GUARDAR")
         if modo == "HUMANO":
             print("\n👨‍💼 Chat en modo humano. IA bloqueada.\n")
             print("🔍 DEBUG: Guardando mensaje del cliente...\n")
-            try:
-                guardar_interaccion(numero_cliente, "user", mensaje)
-                print("✅ Mensaje guardado en memory_store")
-                historial_actual = obtener_historial(numero_cliente)
-                print(f"🔍 Historial en memory_store ahora: {len(historial_actual)} mensajes")
-                for i, msg in enumerate(historial_actual):
-                    print(f"   [{i}] {msg['role']}: {msg['content'][:50]}")
-            except Exception as e:
-                print(f"⚠️  Error guardando en memory: {e}")
             return {"status": "modo_humano_mensaje_guardado"}
     
         background_tasks.add_task(procesar_ia_y_enviar, mensaje, empresa, numero_cliente,mensaje_id)
