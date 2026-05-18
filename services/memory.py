@@ -15,10 +15,16 @@ TTL_AUTO = 120
 TTL_HUMANO = 600 
 
 def obtener_modo(numero):
-    if numero not in memory_store:
-        guardar_interaccion(numero, "user", "")
-
     with lock:
+        if numero not in memory_store:
+            memory_store[numero] = {
+                "historial": deque(maxlen=MAX_MENSAJES),
+                "last_update": time.time(),
+                "modo": "AUTO",
+                "last_mode_check": 0,
+                "last_message_time": time.time()
+            }
+            print(f"✅ Usuario {numero} creado en memory_store")
         data = memory_store[numero]
         ahora = time.time()
 

@@ -211,9 +211,14 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         registrar_lead(numero_cliente, mensaje, empresa, historial, modo=modo)
         if modo == "HUMANO":
             print("\n👨‍💼 Chat en modo humano. IA bloqueada.\n")
+            print("🔍 DEBUG: Guardando mensaje del cliente...\n")
             try:
                 guardar_interaccion(numero_cliente, "user", mensaje)
                 print("✅ Mensaje guardado en memory_store")
+                historial_actual = obtener_historial(numero_cliente)
+                print(f"🔍 Historial en memory_store ahora: {len(historial_actual)} mensajes")
+                for i, msg in enumerate(historial_actual):
+                    print(f"   [{i}] {msg['role']}: {msg['content'][:50]}")
             except Exception as e:
                 print(f"⚠️  Error guardando en memory: {e}")
             return {"status": "modo_humano_mensaje_guardado"}
