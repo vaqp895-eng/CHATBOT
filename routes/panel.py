@@ -537,45 +537,6 @@ async def cambiar_modo_endpoint(data: ModoInput):
     except Exception as e:
         logger.error(f"❌ Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
- 
-# ===== ENDPOINT: DEBUG - Ver qué hay en memory_store =====
-@router.get("/debug/memory/{numero}")
-async def debug_memory(numero: str):
-    """Muestra exactamente qué hay en memory_store"""
-    try:
-        logger.info(f"🔍 DEBUG MEMORY PARA {numero}")
-        
-        # Ver qué hay en memory_store
-        with lock:
-            if numero in memory_store:
-                data = memory_store[numero]
-                historial = list(data["historial"])
-                logger.info(f"✅ ENCONTRADO EN MEMORY_STORE:")
-                logger.info(f"   - Mensajes: {len(historial)}")
-                logger.info(f"   - Modo: {data.get('modo')}")
-                logger.info(f"   - Last update: {data.get('last_update')}")
-                logger.info(f"   - Contenido:")
-                for i, msg in enumerate(historial):
-                    logger.info(f"     [{i}] {msg['role']}: {msg['content'][:80]}")
-                
-                return {
-                    "numero": numero,
-                    "en_memory": True,
-                    "mensajes": len(historial),
-                    "modo": data.get("modo"),
-                    "historial": historial
-                }
-            else:
-                logger.warning(f"❌ NO ENCONTRADO EN MEMORY_STORE")
-                return {
-                    "numero": numero,
-                    "en_memory": False,
-                    "mensajes": 0,
-                    "historial": []
-                }
-    except Exception as e:
-        logger.error(f"Error: {e}")
-        return {"error": str(e)}
 
 if __name__ == "__main__":
     logger.info("🧪 Testing panel.py")
