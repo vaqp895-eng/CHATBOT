@@ -183,91 +183,62 @@ async def obtener_numeros():
 @router.get("/chat/{numero}")
 async def ver_chat(numero: str):
     """
-    Obtiene el historial completo de un usuario
-    Parsea la columna "Historial" de Google Sheets
+    ✅ memory_store es la FUENTE DE VERDAD
+    📊 Google Sheets es solo BACKUP
     """
     try:
         logger.info(f"📝 Obteniendo historial de {numero}...")
+        
+        # 1️⃣ SIEMPRE INTENTAR memory_store PRIMERO
         historial_memoria = obtener_historial(numero)
+        
         if historial_memoria:
-            logger.info(f"   ✅ Encontrado en memory_store: {len(historial_memoria)} mensajes")
+            logger.info(f"   ✅ Usando memory_store: {len(historial_memoria)} mensajes")
+            fuente = "memory"
         else:
-            logger.info(f"   ❌ No encontrado en memory_store, cargando de Sheets...")
-        sheet = iniciar_google()
-        if not sheet:
-            raise HTTPException(status_code=500, detail="Google Sheets no disponible")
-        
-        data = sheet.get_all_records()
-        
-        # Buscar el registro con este número
-        registro = None
-        for row in data:
-            if str(row.get("Numero", "")).strip() == str(numero).strip():
-                registro = row
-                break
-        
-        if not registro:
-            logger.warning(f"⚠️  Usuario no encontrado en Sheets")
-            return {
-                "numero": numero,
-                "historial":historial_memoria or [],
-                "count": len(historial_memoria) if historial_memoria else 0,
-                "mensaje": "Usuario no encontrado",
-                "empresa": "-",
-                "servicio": "-",
-                "fuente": "memory" if historial_memoria else "ninguna"
-            }
-        
-        # Extraer historial de la columna "Historial"
-        historial_sheets_raw = registro.get("Historial", "")
-        if historial_sheets_raw:
-            logger.info(f"   3️⃣ Sincronizando Sheets → memory_store...")
-            historial_sheets = parsear_historial(historial_sheets_raw)
-            if not historial_memoria or len(historial_sheets) > len(historial_memoria):
-                logger.info(f"      Memory tiene {len(historial_memoria) if historial_memoria else 0}, Sheets tiene {len(historial_sheets)}")
-                logger.info(f"      Sincronizando...")
-                with lock:
-                    if numero not in memory_store:
-                        memory_store[numero] = {
-                            "historial": deque(maxlen=MAX_MENSAJES),
-                            "last_update": time.time(),
-                            "modo": "AUTO",
-                            "last_mode_check": 0
-                        }
-                    
-                    # Limpiar historial viejo
-                    memory_store[numero]["historial"].clear()
-                    
-                    # Agregar mensajes de Sheets
-                    for msg in historial_sheets:
-                        memory_store[numero]["historial"].append(msg)
-                    
-                    memory_store[numero]["last_update"] = time.time()
-                historial_memoria = historial_sheets
+            # 2️⃣ Si NO está en memory, cargar de Sheets como FALLBACK
+            logger.info(f"   ⚠️  No en memory_store, cargando de Sheets (fallback)...")
+            sheet = iniciar_google()
+            if not sheet:
+                raise HTTPException(status_code=500, detail="Google Sheets no disponible")
+            
+            data = sheet.get_all_records()
+            registro = None
+            for row in data:
+                if str(row.get("Numero", "")).strip() == str(numero).strip():
+                    registro = row
+                    break
+            
+            if not registro:
+                historial_memoria = []
+                fuente = "ninguna"
             else:
-                logger.info(f"      Memory ya está actualizado")
-        else:
-            logger.info(f"   3️⃣ Sheets vacío, usando memory_store")
+                historial_sheets_raw = registro.get("Historial", "")
+                if historial_sheets_raw:
+                    historial_memoria = parsear_historial(historial_sheets_raw)
+                    fuente = "sheets"
+                else:
+                    historial_memoria = []
+                    fuente = "sheets_vacio"
+        
+        # 3️⃣ SIEMPRE DEVOLVER memory_store
         historial_final = historial_memoria or []
-        fuente = "memory" if historial_memoria else ("sheets" if historial_sheets_raw else "ninguna")
-
+        
         logger.info(f"\n{'='*60}")
         logger.info(f"📤 DEVOLVIENDO RESPUESTA:")
         logger.info(f"   Número: {numero}")
+        logger.info(f"   Fuente: {fuente}")
         logger.info(f"   Historial total: {len(historial_final)} mensajes")
-        for i, msg in enumerate(historial_final):
+        for i, msg in enumerate(historial_final[-5:]):  # Últimos 5
             logger.info(f"     [{i}] {msg['role']}: {msg['content'][:60]}")
         logger.info(f"{'='*60}\n")
         
-
         return {
             "numero": numero,
             "historial": historial_final,
             "count": len(historial_final),
-            "mensaje": f"{len(historial_final)} mensajes encontrados",
-            "empresa": registro.get("Empresa", "-"),
-            "servicio": registro.get("Servicio", "-"),
-            "fuente": fuente  # Para debugging
+            "mensaje": f"{len(historial_final)} mensajes",
+            "fuente": fuente
         }
     
     except Exception as e:
