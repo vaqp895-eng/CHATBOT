@@ -212,6 +212,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         if modo == "HUMANO":
             print("\n👨‍💼 Chat en modo humano. IA bloqueada.\n")
             print("🔍 DEBUG: Guardando mensaje del cliente...\n")
+            guardar_interaccion(numero_cliente, "user", mensaje)
             return {"status": "modo_humano_mensaje_guardado"}
     
         background_tasks.add_task(procesar_ia_y_enviar, mensaje, empresa, numero_cliente,mensaje_id)
