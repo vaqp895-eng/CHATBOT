@@ -840,14 +840,21 @@
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
- 
+            
             const data = await response.json();
             chatsData = data.chats || [];
- 
+            
             console.log(`✅ ${chatsData.length} chats pendientes cargados`);
             
             renderizarChats(chatsData);
- 
+            
+            // 🔴 NUEVO: Si hay un chat abierto, refrescarlo también
+            if (numeroActual) {
+                console.log(`🔄 Refrescando chat actual: ${numeroActual}`);
+                await cargarHistorial(numeroActual);
+                console.log('✅ Chat refrescado');
+            }
+            
         } catch (error) {
             console.error('❌ Error:', error);
             mostrarAlerta('alert-chats', `❌ Error: ${error.message}`, 'error');
@@ -890,6 +897,7 @@
             if (response.ok) {
                 alert('✅ Chat cerrado correctamente');
                 numeroActual = null;
+                actualizarAutoRefresh();
                 document.getElementById('messages').innerHTML = 
                     '<div class="empty-state">Selecciona un chat para ver la conversación</div>';
                 document.getElementById('header-numero').textContent = '👋 Panel de Asesor';
