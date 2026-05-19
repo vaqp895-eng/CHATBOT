@@ -184,8 +184,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         message_obj = data["entry"][0]["changes"][0]["value"]["messages"][0]
         mensaje_id = message_obj["id"]
         mensaje_timestamp = int(message_obj.get("timestamp", 0))
-        #if (int(time.time()) - mensaje_timestamp) > 500:
-            #return {"status": "old_message_ignored"}
         tiempo_actual = int(time.time())
         if (tiempo_actual - mensaje_timestamp) > 400:
             print("⏳ Mensaje viejo detectado (Servidor dormido). Ignorando para evitar respuestas fantasma.")
@@ -207,8 +205,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             return {"reply": "Empresa no configurada"}
         mensaje = clean_text(mensaje)
         modo = obtener_modo(numero_cliente)
-        historial = obtener_historial(numero_cliente)
-        print(f"✅ Lead registrado en Sheets")
         if modo == "HUMANO":
             print("\n👨‍💼 Chat en modo humano. IA bloqueada.\n")
             print("🔍 DEBUG: Guardando mensaje del cliente...\n")

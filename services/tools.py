@@ -334,7 +334,7 @@ def actualizar_sheet(numero, nuevo_modo):
         for i, valor in enumerate(columna_numeros[1:], start=2):
             if str(valor).strip() == str(numero):
                 sheet.update_cell(i, 2, nuevo_modo)
-                print(f"✅ {numero} cambiado a {nuevo_modo}")
+                print(f"ACTUALIZAR_SHEET : ✅ {numero} cambiado a {nuevo_modo}")
                 return True
         return False
 

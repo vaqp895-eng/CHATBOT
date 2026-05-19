@@ -524,7 +524,20 @@ async def cambiar_modo_endpoint(data: ModoInput):
         actualizar_sheet(numero, nuevo_modo)
         cambiar_modo(numero, nuevo_modo)
         logger.info(f"✅ Modo cambiado")
-        
+        if nuevo_modo == "AUTO":
+            logger.info(f"   3️⃣ Finalizando chat: actualizando Estado...")
+            try:
+                sheet = iniciar_google()
+                columna_numeros = sheet.col_values(3)
+                
+                for i, valor in enumerate(columna_numeros[1:], start=2):
+                    if str(valor).strip() == str(numero):
+                        # Columna 10 = J (Estado)
+                        sheet.update_cell(i, 10, "Atendido por el bot")
+                        logger.info(f"   ✅ Estado actualizado a 'Atendido por el bot'")
+                        break
+            except Exception as e:
+                logger.warning(f"   ⚠️  No se pudo actualizar estado: {e}")
         return {
             "status": "ok",
             "numero": numero,
