@@ -208,12 +208,10 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         mensaje = clean_text(mensaje)
         modo = obtener_modo(numero_cliente)
         historial = obtener_historial(numero_cliente)
-        registrar_lead(numero_cliente, mensaje, empresa, historial, modo=modo)
         print(f"✅ Lead registrado en Sheets")
         if modo == "HUMANO":
             print("\n👨‍💼 Chat en modo humano. IA bloqueada.\n")
             print("🔍 DEBUG: Guardando mensaje del cliente...\n")
-            guardar_interaccion(numero_cliente, "user", mensaje)
             return {"status": "modo_humano_mensaje_guardado"}
     
         background_tasks.add_task(procesar_ia_y_enviar, mensaje, empresa, numero_cliente,mensaje_id)

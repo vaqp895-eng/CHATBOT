@@ -138,7 +138,7 @@ def guardar_interaccion(numero, role, mensaje):
             return
         
         # Leer historial actual de Sheets
-        historial_actual = data_sheet[fila_existente - 2].get("Historial", "") or ""
+        historial_actual = sheet.cell(fila_existente, 5).value or ""
         
         # Construir nuevo mensaje
         if role == "user":
