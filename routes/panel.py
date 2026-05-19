@@ -183,75 +183,68 @@ async def obtener_numeros():
 @router.get("/chat/{numero}")
 async def ver_chat(numero: str):
     """
-    ✅ Primera carga: sincroniza TODO de Sheets → memory_store
-    ✅ Luego: usa SOLO memory_store (rápido y no pierde datos)
+    ✅ SIMPLE: Lee TODO de Sheets, sincroniza a memory_store
+    📊 Panel siempre tiene el historial completo
     """
     try:
         logger.info(f"📝 Obteniendo historial de {numero}...")
         
-        # PASO 1: Obtener de memory_store
-        historial_memoria = obtener_historial(numero)
-        
-        # PASO 2: Cargar de Sheets para sincronizar (SIEMPRE)
-        logger.info(f"   📥 Cargando de Sheets para sincronización...")
+        # 1️⃣ Obtener de Google Sheets (fuente de verdad)
         sheet = iniciar_google()
         if not sheet:
-            # Si Sheets no disponible, usar lo que hay en memory
-            historial_final = historial_memoria or []
-            fuente = "memory"
+            raise HTTPException(status_code=500, detail="Google Sheets no disponible")
+        
+        data = sheet.get_all_records()
+        
+        # 2️⃣ Buscar el registro
+        registro = None
+        for row in data:
+            if str(row.get("Numero", "")).strip() == str(numero).strip():
+                registro = row
+                break
+        
+        if not registro:
+            logger.warning(f"⚠️  Usuario no encontrado en Sheets")
+            return {
+                "numero": numero,
+                "historial": [],
+                "count": 0,
+                "mensaje": "Usuario no encontrado",
+                "empresa": "-",
+                "servicio": "-"
+            }
+        
+        # 3️⃣ Extraer historial de Sheets
+        historial_sheets_raw = registro.get("Historial", "")
+        if historial_sheets_raw:
+            logger.info(f"   📥 Parseando historial de Sheets...")
+            historial_final = parsear_historial(historial_sheets_raw)
+            logger.info(f"   ✅ {len(historial_final)} mensajes parseados de Sheets")
         else:
-            data = sheet.get_all_records()
-            registro = None
-            for row in data:
-                if str(row.get("Numero", "")).strip() == str(numero).strip():
-                    registro = row
-                    break
+            logger.info(f"   ⚠️  Sheets vacío")
+            historial_final = []
+        
+        # 4️⃣ Sincronizar a memory_store (para que esté actualizado)
+        with lock:
+            if numero not in memory_store:
+                memory_store[numero] = {
+                    "historial": deque(maxlen=MAX_MENSAJES),
+                    "last_update": time.time(),
+                    "modo": "AUTO",
+                    "last_mode_check": 0
+                }
             
-            if not registro:
-                historial_final = historial_memoria or []
-                fuente = "memory"
-            else:
-                # IMPORTANTE: Sincronizar de Sheets → memory_store (SOLO SI hay más en Sheets)
-                historial_sheets_raw = registro.get("Historial", "")
-                if historial_sheets_raw:
-                    historial_sheets = parsear_historial(historial_sheets_raw)
-                    
-                    # Si Sheets tiene MÁS que memory, sincronizar
-                    if len(historial_sheets) > len(historial_memoria or []):
-                        logger.info(f"   🔄 Sincronizando: Memory={len(historial_memoria or [])}, Sheets={len(historial_sheets)}")
-                        with lock:
-                            if numero not in memory_store:
-                                memory_store[numero] = {
-                                    "historial": deque(maxlen=MAX_MENSAJES),
-                                    "last_update": time.time(),
-                                    "modo": "AUTO",
-                                    "last_mode_check": 0
-                                }
-                            
-                            # 🔴 IMPORTANTE: NO BORRAR, AGREGAR LOS QUE FALTAN
-                            # Obtener mensajes que ya están en memory
-                            mensajes_actuales = list(memory_store[numero]["historial"])
-                            
-                            # Agregar mensajes nuevos de Sheets que no estén en memory
-                            for msg in historial_sheets:
-                                if msg not in mensajes_actuales:
-                                    memory_store[numero]["historial"].append(msg)
-                            
-                            memory_store[numero]["last_update"] = time.time()
-                            historial_memoria = list(memory_store[numero]["historial"])
-                    
-                    historial_final = historial_memoria or []
-                    fuente = "memory+sheets"
-                else:
-                    historial_final = historial_memoria or []
-                    fuente = "memory"
+            # Sincronizar de Sheets → memory
+            memory_store[numero]["historial"].clear()
+            for msg in historial_final:
+                memory_store[numero]["historial"].append(msg)
+            memory_store[numero]["last_update"] = time.time()
         
         logger.info(f"\n{'='*60}")
         logger.info(f"📤 DEVOLVIENDO RESPUESTA:")
         logger.info(f"   Número: {numero}")
-        logger.info(f"   Fuente: {fuente}")
         logger.info(f"   Historial total: {len(historial_final)} mensajes")
-        for i, msg in enumerate(historial_final[-5:]):
+        for i, msg in enumerate(historial_final):
             logger.info(f"     [{i}] {msg['role']}: {msg['content'][:60]}")
         logger.info(f"{'='*60}\n")
         
@@ -260,7 +253,9 @@ async def ver_chat(numero: str):
             "historial": historial_final,
             "count": len(historial_final),
             "mensaje": f"{len(historial_final)} mensajes encontrados",
-            "fuente": fuente
+            "empresa": registro.get("Empresa", "-"),
+            "servicio": registro.get("Servicio", "-"),
+            "fuente": "sheets"
         }
     
     except Exception as e:
