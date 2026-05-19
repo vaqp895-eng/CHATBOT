@@ -154,20 +154,9 @@ def ejecutar_agente(numero, empresa, mensaje):
             cambiar_modo(numero, "HUMANO")
     print("\nINTENT:", intent,"\n")
     if respuesta:
-        guardar_interaccion(numero, "assistant", respuesta)
         try:
-            sheet = iniciar_google()
-            columna_numeros = sheet.col_values(3)
-            
-            for i, valor in enumerate(columna_numeros[1:], start=2):
-                if str(valor).strip() == str(numero):
-                    historial_actual = sheet.cell(i, 5).value or ""
-                    nuevo_mensaje_bot = f"BOT: {respuesta}"
-                    
-                    contexto_final = historial_actual + " | " + nuevo_mensaje_bot
-                    sheet.update_cell(i, 5, contexto_final)
-                    print(f"✅ Respuesta del bot guardada en Sheets")
-                    break
+            guardar_interaccion(numero, "assistant", respuesta)
+        
         except Exception as e:
             print(f"⚠️  Error guardando bot: {e}")
     
