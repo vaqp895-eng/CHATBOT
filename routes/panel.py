@@ -183,27 +183,23 @@ async def obtener_numeros():
 @router.get("/chat/{numero}")
 async def ver_chat(numero: str):
     """
-    ✅ memory_store es FUENTE DE VERDAD (rápido)
-    📊 Sheets es BACKUP (si memory_store está vacío)
+    ✅ Primera carga: sincroniza TODO de Sheets → memory_store
+    ✅ Luego: usa SOLO memory_store (rápido y no pierde datos)
     """
     try:
         logger.info(f"📝 Obteniendo historial de {numero}...")
+        
+        # PASO 1: Obtener de memory_store
         historial_memoria = obtener_historial(numero)
         
-        # OPCIÓN 1: Si hay en memory_store → USAR ESO (es la fuente de verdad)
-        if historial_memoria:
-            logger.info(f"   ✅ Usando memory_store: {len(historial_memoria)} mensajes")
-            historial_final = historial_memoria
+        # PASO 2: Cargar de Sheets para sincronizar (SIEMPRE)
+        logger.info(f"   📥 Cargando de Sheets para sincronización...")
+        sheet = iniciar_google()
+        if not sheet:
+            # Si Sheets no disponible, usar lo que hay en memory
+            historial_final = historial_memoria or []
             fuente = "memory"
-        
-        # OPCIÓN 2: Si NO hay en memory → cargar de Sheets como fallback
         else:
-            logger.info(f"   ⚠️  memory_store vacío, cargando de Sheets (fallback)...")
-            
-            sheet = iniciar_google()
-            if not sheet:
-                raise HTTPException(status_code=500, detail="Google Sheets no disponible")
-            
             data = sheet.get_all_records()
             registro = None
             for row in data:
@@ -212,24 +208,50 @@ async def ver_chat(numero: str):
                     break
             
             if not registro:
-                historial_final = []
-                fuente = "ninguna"
+                historial_final = historial_memoria or []
+                fuente = "memory"
             else:
+                # IMPORTANTE: Sincronizar de Sheets → memory_store (SOLO SI hay más en Sheets)
                 historial_sheets_raw = registro.get("Historial", "")
                 if historial_sheets_raw:
-                    logger.info(f"   📥 Parseando Sheets...")
-                    historial_final = parsear_historial(historial_sheets_raw)
-                    fuente = "sheets"
+                    historial_sheets = parsear_historial(historial_sheets_raw)
+                    
+                    # Si Sheets tiene MÁS que memory, sincronizar
+                    if len(historial_sheets) > len(historial_memoria or []):
+                        logger.info(f"   🔄 Sincronizando: Memory={len(historial_memoria or [])}, Sheets={len(historial_sheets)}")
+                        with lock:
+                            if numero not in memory_store:
+                                memory_store[numero] = {
+                                    "historial": deque(maxlen=MAX_MENSAJES),
+                                    "last_update": time.time(),
+                                    "modo": "AUTO",
+                                    "last_mode_check": 0
+                                }
+                            
+                            # 🔴 IMPORTANTE: NO BORRAR, AGREGAR LOS QUE FALTAN
+                            # Obtener mensajes que ya están en memory
+                            mensajes_actuales = list(memory_store[numero]["historial"])
+                            
+                            # Agregar mensajes nuevos de Sheets que no estén en memory
+                            for msg in historial_sheets:
+                                if msg not in mensajes_actuales:
+                                    memory_store[numero]["historial"].append(msg)
+                            
+                            memory_store[numero]["last_update"] = time.time()
+                            historial_memoria = list(memory_store[numero]["historial"])
+                    
+                    historial_final = historial_memoria or []
+                    fuente = "memory+sheets"
                 else:
-                    historial_final = []
-                    fuente = "sheets_vacio"
+                    historial_final = historial_memoria or []
+                    fuente = "memory"
         
         logger.info(f"\n{'='*60}")
         logger.info(f"📤 DEVOLVIENDO RESPUESTA:")
         logger.info(f"   Número: {numero}")
         logger.info(f"   Fuente: {fuente}")
         logger.info(f"   Historial total: {len(historial_final)} mensajes")
-        for i, msg in enumerate(historial_final[-5:]):  # Últimos 5
+        for i, msg in enumerate(historial_final[-5:]):
             logger.info(f"     [{i}] {msg['role']}: {msg['content'][:60]}")
         logger.info(f"{'='*60}\n")
         
@@ -244,8 +266,8 @@ async def ver_chat(numero: str):
     except Exception as e:
         logger.error(f"❌ Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
- 
- 
+    
+
 # ===== FUNCIÓN: Parsear Historial =====
 def parsear_historial(historial_raw: str):
     """
