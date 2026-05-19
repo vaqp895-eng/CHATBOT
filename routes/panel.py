@@ -251,6 +251,15 @@ async def ver_chat(numero: str):
         historial_final = historial_memoria or []
         fuente = "memory" if historial_memoria else ("sheets" if historial_sheets_raw else "ninguna")
 
+        logger.info(f"\n{'='*60}")
+        logger.info(f"📤 DEVOLVIENDO RESPUESTA:")
+        logger.info(f"   Número: {numero}")
+        logger.info(f"   Historial total: {len(historial_final)} mensajes")
+        for i, msg in enumerate(historial_final):
+            logger.info(f"     [{i}] {msg['role']}: {msg['content'][:60]}")
+        logger.info(f"{'='*60}\n")
+        
+
         return {
             "numero": numero,
             "historial": historial_final,

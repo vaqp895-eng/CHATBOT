@@ -9,7 +9,7 @@ lock = threading.Lock()
 
 EXPIRATION_TIME = 6 * 60 * 60  # 6 horas
 MAX_USERS = 1000
-MAX_MENSAJES = 10  # cantidad de mensajes por usuario
+MAX_MENSAJES = 15  # cantidad de mensajes por usuario
 
 TTL_AUTO = 120
 TTL_HUMANO = 600 
