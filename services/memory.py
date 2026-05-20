@@ -15,29 +15,42 @@ TTL_AUTO = 120
 TTL_HUMANO = 600 
 
 def obtener_modo(numero):
-    with lock:
-        if numero not in memory_store:
-            memory_store[numero] = {
-                "historial": deque(maxlen=MAX_MENSAJES),
-                "last_update": time.time(),
-                "modo": "AUTO",
-                "last_mode_check": 0,
-                "last_message_time": time.time()
-            }
-            print(f"✅ Usuario {numero} creado en memory_store")
-        data = memory_store[numero]
-        ahora = time.time()
-
-        ttl = TTL_AUTO if data["modo"] == "AUTO" else TTL_HUMANO
-
-        if ahora - data["last_mode_check"] < ttl:
-            return data["modo"]
-
-    modo_sheet = buscar_modo_en_sheet(numero)
-
-    with lock:
-        memory_store[numero]["modo"] = modo_sheet
-        memory_store[numero]["last_mode_check"] = time.time()
+    try:
+        # 1️⃣ Leer de Sheets (fuente de verdad)
+        modo_sheet = buscar_modo_en_sheet(numero)
+        print(f"   📊 Sheets dice: {modo_sheet}")
+        
+        # 2️⃣ Actualizar memory_store con el modo de Sheets
+        with lock:
+            if numero not in memory_store:
+                memory_store[numero] = {
+                    "historial": deque(maxlen=MAX_MENSAJES),
+                    "last_update": time.time(),
+                    "modo": modo_sheet,
+                    "last_mode_check": time.time(),
+                    "last_message_time": time.time()
+                }
+                print(f"   ✅ Usuario creado en memory_store con modo {modo_sheet}")
+            else:
+                # Actualizar el modo si cambió
+                modo_actual = memory_store[numero]["modo"]
+                if modo_actual != modo_sheet:
+                    print(f"   🔄 Sincronizando: {modo_actual} → {modo_sheet}")
+                    memory_store[numero]["modo"] = modo_sheet
+                else:
+                    print(f"   ✅ Memory_store ya está sincronizado")
+                
+                memory_store[numero]["last_mode_check"] = time.time()
+        
+        print(f"   ✅ Modo final: {modo_sheet}\n")
+        return modo_sheet
+    except Exception as e:
+        print(f"❌ Error obteniendo modo: {e}")
+        # Fallback a memory_store si Sheets falla
+        with lock:
+            if numero in memory_store:
+                return memory_store[numero].get("modo", "AUTO")
+        return "AUTO"
 
     return modo_sheet
 

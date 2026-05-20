@@ -204,16 +204,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             print("❌ No se encontró la empresa. Abortando envío.")
             return {"reply": "Empresa no configurada"}
         mensaje = clean_text(mensaje)
-        
-        with lock:
-            if numero_cliente in memory_store:
-                modo_memory = memory_store[numero_cliente].get("modo", "AUTO")
-                last_check = memory_store[numero_cliente].get("last_mode_check", 0)
-                print(f"   📦 Memory_store: modo={modo_memory}, last_check={last_check}")
-            else:
-                print(f"   📦 Memory_store: usuario NO existe")
         modo = obtener_modo(numero_cliente)
-        print(f"   ✅ Modo final: {modo}\n")
         if modo == "HUMANO":
             print("\n👨‍💼 Chat en modo humano. IA bloqueada.\n")
             print("🔍 DEBUG: Guardando mensaje del cliente...\n")
