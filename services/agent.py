@@ -106,7 +106,7 @@ def ejecutar_agente(numero, empresa, mensaje):
             if "asesor" in respuesta.lower() or "contactará" in respuesta.lower():
                 respuesta += f"\n\nPara continuar con tu atención, por favor haz clic en el siguiente enlace y escríbenos directamente por WhatsApp:{LINK_ASESOR}"
                 send_alert(empresa["email"], respuesta, empresa, numero, historial)
-                seguimiento_asesor(numero, mensaje,respuesta, empresa, historial)
+                seguimiento_asesor(numero, mensaje,empresa,historial)
                 cambiar_modo(numero, "HUMANO")
 
     elif intent == "saludo":
@@ -114,7 +114,7 @@ def ejecutar_agente(numero, empresa, mensaje):
         if "asesor" in respuesta.lower() or "contactará" in respuesta.lower():
             respuesta += f"\n\nPara continuar con tu atención, por favor haz clic en el siguiente enlace y escríbenos directamente por WhatsApp:{LINK_ASESOR}"
             send_alert(empresa["email"], respuesta, empresa, numero, historial)
-            seguimiento_asesor(numero, mensaje,respuesta, empresa, historial)
+            seguimiento_asesor(numero, mensaje,empresa,historial)
             cambiar_modo(numero, "HUMANO")
             
     elif any(x in intent for x in ["compra", "agendamiento"]):
@@ -147,7 +147,7 @@ def ejecutar_agente(numero, empresa, mensaje):
         if "asesor" in respuesta.lower() or "contactará" in respuesta.lower():
             respuesta += f"\n\nPara continuar con tu atención, por favor haz clic en el siguiente enlace y escríbenos directamente por WhatsApp:{LINK_ASESOR}"
             send_alert(empresa["email"], respuesta, empresa, numero, historial)
-            seguimiento_asesor(numero, mensaje,respuesta, empresa, historial)
+            seguimiento_asesor(numero, mensaje,empresa,historial)
             cambiar_modo(numero, "HUMANO")
         if "agendar" in respuesta or "comprar" in respuesta:
             registrar_lead(numero, mensaje, empresa, historial, intent=intent)
