@@ -342,26 +342,29 @@ def actualizar_sheet(numero, nuevo_modo):
         print("❌ Error actualizando modo:", e)
         return False
     
-def seguimiento_asesor(numero, mensaje,respuesta, empresa,historial, modo="AUTO"):
+def seguimiento_asesor(numero, mensaje, empresa,historial, modo="AUTO",intent=None):
     print("Ejecutando seguimiento asesor...")
     try:
         sheet = iniciar_google()
+        if not sheet:
+            print("❌ Sheets no disponible")
+            return
 
         fecha = datetime.datetime.now(zona_horaria)
+        cliente = buscar_cliente_en_cache(numero)
+        nuevo_registro = f"Cliente: {mensaje}"
 
         try:
-            # Leer historial actual
-            historial_actual = sheet.cell(fila_existente, 5).value or ""  # Columna E (5)
-            
-            nuevo_registro = f"Cliente: {mensaje}"
-            
-            # Sumar
-            if historial_actual:
-                contexto_final = historial_actual + " | " + nuevo_registro
+            if cliente:
+                historial_actual = cliente["datos"].get("Historial", "") or ""
+                if historial_actual:
+                    contexto_final = historial_actual + " | " + nuevo_registro
+                else:
+                    contexto_final = nuevo_registro
+                estado = "Atendido por el bot" if intent == "cierre" else "Pendiente Asesor"
             else:
                 contexto_final = nuevo_registro
-
-            
+                estado = "Pendiente Asesor"   
         except Exception as e:
             print(f"⚠️  Error actualizando: {e}") 
 
@@ -371,28 +374,17 @@ def seguimiento_asesor(numero, mensaje,respuesta, empresa,historial, modo="AUTO"
         dia_semana    = extraer_dia_semana(fecha)
         turno         = extraer_turno(fecha)
         intercambios  = contar_intercambios(historial)
-
-        columna_numeros = sheet.col_values(3)
-
-        fila_existente = None
-
-        for i, valor in enumerate(columna_numeros[1:], start=2):
-            if str(valor).strip() == str(numero):
-                fila_existente = i
-                break
         
-        print("Fila encontrada:", fila_existente)
-        
-        if fila_existente:
+        if cliente:
 
-            sheet.update(f"D{fila_existente}:N{fila_existente}",[[
+            sheet.update(f"D{cliente['fila']}:N{cliente['fila']}",[[
                 mensaje,
                 contexto_final,
                 servicios,
                 empresa["nombre"],
                 fecha.strftime("%d-%m-%Y"),
                 fecha.strftime("%H:%M"),
-                "Pendiente Asesor",
+                estado,
                 pais,
                 dia_semana,                  
                 turno,                       
@@ -404,7 +396,7 @@ def seguimiento_asesor(numero, mensaje,respuesta, empresa,historial, modo="AUTO"
         else:
 
             fila = [
-                len(sheet.col_values(1)),   # ID rápido
+                len(cache_manager.obtener_todos_datos()) + 1,
                 modo,
                 numero,
                 mensaje,
@@ -413,7 +405,7 @@ def seguimiento_asesor(numero, mensaje,respuesta, empresa,historial, modo="AUTO"
                 empresa["nombre"],
                 fecha.strftime("%d-%m-%Y"),
                 fecha.strftime("%H:%M"),
-                "Pendiente Asesor",
+                estado,
                 pais,
                 dia_semana,                  
                 turno,                       
