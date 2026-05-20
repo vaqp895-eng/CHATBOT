@@ -523,6 +523,11 @@ async def cambiar_modo_endpoint(data: ModoInput):
     try:
         actualizar_sheet(numero, nuevo_modo)
         cambiar_modo(numero, nuevo_modo)
+        with lock:
+            if numero in memory_store:
+                memory_store[numero]["last_mode_check"] = 0
+                logger.info(f"   🔄 Caché invalidado, próximo mensaje verificará Sheets")
+                
         logger.info(f"✅ Modo cambiado")
         if nuevo_modo == "AUTO":
             logger.info(f"   3️⃣ Finalizando chat: actualizando Estado...")
