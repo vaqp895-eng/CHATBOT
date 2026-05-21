@@ -14,7 +14,12 @@ def ejecutar_agente(numero, empresa, mensaje):
     print(f"   ✅ Empresa: {empresa.get('nombre', '?')}")
     print(f"   ✅ Mensaje del cliente: {mensaje[:50]}")
     print(f"{'='*70}\n")
-    guardar_interaccion(numero, "user", mensaje)
+    mensaje_existe = any(h.get("content") == mensaje and h.get("role") == "user" for h in historial[-3:])
+    if not mensaje_existe:
+        guardar_interaccion(numero, "user", mensaje)
+        print(f"✅ Mensaje guardado")
+    else:
+        print(f"⚠️  Mensaje ya existe en historial (reintento ignorado)")
     historial = obtener_historial(numero)
 
 
