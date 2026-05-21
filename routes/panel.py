@@ -386,18 +386,11 @@ async def enviar_media(
     logger.info(f"📦 Recibida solicitud de {tipo} para el número: {numero}")
     
     try:
-        # 1. Validaciones básicas
         if not numero or len(numero) < 7:
             raise ValueError("Número de teléfono inválido")
         
-        # 2. Leer los bytes del archivo cargado
         contenido_archivo = await archivo.read()
         
-        # ⚠️ IMPORTANTE: Asegúrate de usar AQUÍ los mismos nombres de variables 
-        # globales que usas en tu función 'enviar_texto' (ej. WHATSAPP_TOKEN, PHONE_NUMBER_ID)
-        # Si las tienes guardadas en un archivo config, asegúrate de importarlas.
-        
-        # 3. Subir el archivo binario temporalmente a los servidores de Meta
         url_meta_media = f"https://graph.facebook.com/v20.0/{PHONE_NUMBER_ID}/media"
         headers_meta = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
         
@@ -417,7 +410,6 @@ async def enviar_media(
         media_id = response_media.json().get("id")
         logger.info(f"✅ Archivo subido con éxito a Meta. ID generado: {media_id}")
 
-        # 4. Enviar el ID multimedia al WhatsApp del cliente definitivo
         url_mensajes = f"https://graph.facebook.com/v20.0/{PHONE_NUMBER_ID}/messages"
         headers_mensajes = {
             "Authorization": f"Bearer {ACCESS_TOKEN}",
@@ -431,7 +423,6 @@ async def enviar_media(
             "type": tipo_meta
         }
         
-        # Definimos el tipo de mensaje para Meta y el texto de respaldo para tus Sheets
         if tipo == "imagen":
             payload["image"] = {"id": media_id}
             texto_historial = f"🖼️ [Imagen enviada: {archivo.filename}]"
@@ -446,14 +437,12 @@ async def enviar_media(
             logger.error(f"❌ Error al enviar el mensaje multimedia final: {response_envio.text}")
             raise HTTPException(status_code=500, detail="WhatsApp rechazó el envío del mensaje")
 
-        # 5. Sincronizar con Google Sheets e Historial (Idéntico a tu endpoint /responder)
         logger.info(f"💾 Guardando registro en historial y Google Sheets...")
         try:
             guardar_interaccion(numero, "assistant", texto_historial)
         except Exception as e:
             logger.warning(f"⚠️ Error guardando interacción en Sheets: {e}")
             
-        # 6. Forzar el Modo Humano para pausar la IA
         try:
             cambiar_modo(numero, "HUMANO")
             logger.info(f"✅ Modo cambiado a HUMANO con éxito")

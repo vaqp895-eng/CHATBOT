@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Asesor - New Sneaker</title>
+    <title>Panel Asesor - TU EMPRESA</title>
     <style>
         :root {
             --primary: #33407b;
@@ -621,7 +621,7 @@
     </div>  <!-- ← CIERRA SIDEBAR AQUÍ -->
     
     <!-- ===== MAIN (CHAT SELECCIONADO) ===== -->
-    <div class="main">  <!-- ← COMIENZA MAIN AQUÍ (FUERA de sidebar) -->
+    <div class="main">  
         <!-- Header -->
         <div class="header" id="header" style="display: flex; justify-content: space-between; align-items: flex-start;">
             <div>
@@ -752,7 +752,7 @@
         }
         fileInput.accept = 'image/*';
         fileInput.onchange = () => enviarArchivo('imagen'); // Al seleccionar, procesa la imagen
-        fileInput.click(); // 👈 Esto es lo que abre la ventana para elegir la foto
+        fileInput.click();
     }
 
     async function enviarArchivo(tipo) {
@@ -848,7 +848,6 @@
             
             renderizarChats(chatsData);
             
-            // 🔴 NUEVO: Si hay un chat abierto, refrescarlo también
             if (numeroActual) {
                 console.log(`🔄 Refrescando chat actual: ${numeroActual}`);
                 await cargarHistorial(numeroActual);
