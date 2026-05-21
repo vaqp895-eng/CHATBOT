@@ -29,28 +29,6 @@ def ejecutar_agente(numero, empresa, mensaje):
         rol = "Cliente" if h["role"] == "user" else "BOT"
         contexto += f"{rol}: {h['content']} | "
     contexto += f"BOT: {respuesta}"
-    
-
-
-    try:
-        sheet = iniciar_google()
-        columna_numeros = sheet.col_values(3)
-        
-        for i, valor in enumerate(columna_numeros[1:], start=2):
-            if str(valor).strip() == str(numero):
-                # Leer y sumar
-                historial_actual = sheet.cell(i, 5).value or ""
-                nuevo_mensaje_cliente = f"Cliente: {mensaje}"
-                if historial_actual:
-                    contexto_final = historial_actual + " | " + nuevo_mensaje_cliente
-                else:
-                    contexto_final = nuevo_mensaje_cliente
-                
-                # Guardar
-                sheet.update_cell(i, 5, contexto_final)
-                break
-    except Exception as e:
-        print(f"⚠️  Error: {e}")
     respuesta = None
     if not historial:
             print("⚠️  ADVERTENCIA: Historial vacío (usuario nuevo)")
