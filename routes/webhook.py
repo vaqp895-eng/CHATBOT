@@ -12,6 +12,7 @@ import asyncio
 import time
 from services.tools import registrar_lead
 from services.memory import obtener_historial, memory_store, lock
+from collections import deque
 
 load_dotenv()
 
