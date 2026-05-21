@@ -1,24 +1,24 @@
 [
   {
     "numero": "15551503160",
-    "nombre": "New Sneakers",
+    "nombre": "TU EMPRESA",
     "objetivo": "Venta y atención al cliente",
     "marcas_disponibles": {
-        "NEW ATHLETIC": "Importado - Deportivo (Running) y Urbano.",
-        "I RUN": "Importado - Especialistas en estilo Urbano y Deportivo ligero.",
-        "DROMEDAR": "Importado - Calzado resistente y casual.",
-        "IVANO": "línea de cuero nacional - Estilo Urbano y comodidad.",
-        "PUNTO": "Importado - Variedad en modelos casuales y deportivos.",
-        "WALON": "Importado - Especialistas en Fútbol y Futsal."
+        "NNN": "Importado - Deportivo (Running) y Urbano.",
+        "RRRR": "Importado - Especialistas en estilo Urbano y Deportivo ligero.",
+        "DDD": "Importado - Calzado resistente y casual.",
+        "III": "línea de cuero nacional - Estilo Urbano y comodidad.",
+        "PPPP": "Importado - Variedad en modelos casuales y deportivos.",
+        "WWWW": "Importado - Especialistas en Fútbol y Futsal."
     },
     "ubicacion": { 
-      "sede_principal": "Calle San Juan de Dios 527 (Lunes a Domingos)",
-      "sede_secundaria": "Calle San Juan de Dios 400H (Lunes a Sábado)"},
-    "descripcion": "Calzado Multimarca Importado.",
+      "sede_principal": "Calle XXXX (Lunes a Domingos)",
+      "sede_secundaria": "Calle YYYY (Lunes a Sábado)"},
+    "descripcion": "Multimarca Importado.",
     "horario": {
         "lunes_a_viernes": "9:00 AM - 8:00 PM",
         "sabado": "9:00 AM - 8:30 PM",
-        "domingo": "11:00 AM - 5:00 PM (solo la sede principal Calle San Juan de Dios 527) ",
+        "domingo": "11:00 AM - 5:00 PM (solo la sede principal Calle XXXX) ",
         "atencion_feriados": "Atendemos feriados sujeto a confirmación (Consultar disponibilidad el mismo día)."
     },
     "politica_cambios": {
@@ -31,7 +31,6 @@
       "directo": "Yape, Plin, Transferencia(Sin comisión)",
       "tarjeta_pos": "3.5% adicional (Cargo por mantenimiento de la empresa operadora)"
     },
-    "contacto": "943631249",
     "email": "newsneakerssac05@gmail.com",
     "categorias": {
         "Dama": "👠",

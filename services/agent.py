@@ -5,8 +5,6 @@ from services.tools import registrar_lead, send_alert, iniciar_google
 import os
 import re
 
-LINK_ASESOR = "https://wa.me/51988225719"
-
 def ejecutar_agente(numero, empresa, mensaje):
     print(f"\n{'='*70}")
     print(f"🤖 AGENTE INICIADO")
@@ -44,7 +42,7 @@ def ejecutar_agente(numero, empresa, mensaje):
         ruta_dama = "static/catalogo_dama.pdf"
         ruta_nino = "static/catalogo_nino.pdf"
         ruta_futbol = "static/catalogo_futbol.pdf"
-        mensaje_sin_catalogo = "Debido a la gran demanda por el CYBER NEW SNEAKERS, estamos actualizando nuestro catálogo en tiempo real para mostrarte solo lo que queda en stock.\n🚀 ¿Cómo comprar ahora mismo?\n1. Visítanos en tienda física: ¡Es la mejor opción! Aseguras tu talla y modelo favorito antes de que se agoten.\n2. Háblanos en las próximas horas: Te enviaremos fotos de los modelos que sigan disponibles."
+        mensaje_sin_catalogo = "Debido a la gran demanda por el CYBER EMPRESA X, estamos actualizando nuestro catálogo en tiempo real para mostrarte solo lo que queda en stock.\n🚀 ¿Cómo comprar ahora mismo?\n1. Visítanos en tienda física: ¡Es la mejor opción! Aseguras tu talla y modelo favorito antes de que se agoten.\n2. Háblanos en las próximas horas: Te enviaremos fotos de los modelos que sigan disponibles."
         if modo == "CATALOGO":
             if any(x in msg for x in ["hombre", "varon", "varón", "caballero"]):
                 if os.path.exists(ruta_varon):
@@ -86,7 +84,6 @@ def ejecutar_agente(numero, empresa, mensaje):
         else:
             respuesta = generar_respuesta_ia(mensaje, empresa, historial)
             if "asesor" in respuesta.lower() or "contactará" in respuesta.lower():
-                respuesta += f"\n\nPara continuar con tu atención, por favor haz clic en el siguiente enlace y escríbenos directamente por WhatsApp:{LINK_ASESOR}"
                 send_alert(empresa["email"], respuesta, empresa, numero, historial)
                 seguimiento_asesor(numero, mensaje,empresa,historial,skip_history=True)
                 cambiar_modo(numero, "HUMANO")
@@ -94,7 +91,6 @@ def ejecutar_agente(numero, empresa, mensaje):
     elif intent == "saludo":
         respuesta = generar_respuesta_ia(mensaje, empresa, historial)
         if "asesor" in respuesta.lower() or "contactará" in respuesta.lower():
-            respuesta += f"\n\nPara continuar con tu atención, por favor haz clic en el siguiente enlace y escríbenos directamente por WhatsApp:{LINK_ASESOR}"
             send_alert(empresa["email"], respuesta, empresa, numero, historial)
             seguimiento_asesor(numero, mensaje,empresa,historial,skip_history=True)
             cambiar_modo(numero, "HUMANO")
@@ -102,12 +98,12 @@ def ejecutar_agente(numero, empresa, mensaje):
     elif any(x in intent for x in ["compra", "agendamiento"]):
         registrar_lead(numero, mensaje, empresa,historial, intent=intent,skip_history=True)
         send_alert( empresa["email"],mensaje,empresa,numero,historial)
-        respuesta = f"¡Perfecto! Ya registramos tu solicitud. Un asesor te contactará enseguida\n\nPara continuar con tu atención, por favor haz clic en el siguiente enlace y escríbenos directamente por WhatsApp:{LINK_ASESOR}"
+        respuesta = f"¡Perfecto! Ya registramos tu solicitud. Un asesor te contactará enseguida"
         cambiar_modo(numero, "HUMANO")
         
     
     elif "catalogo" in intent:
-        respuesta = "✨ Con gusto te comparto nuestro catálogo. Manejamos las mejores marcas: New Athletic, Irun, Walon (solo fútbol), Dariems y Dromedar (solo urbana caña alta), todas importadas; además de Ivano, que es cuero nacional. 🇵🇪\n¿En qué categoría estás interesado?\n* 👠 Dama\n* 👟 Varón\n* 👧 Niño\n* ⚽ Fútbol\nTips de tallas:\n* 🌍 Importadas: La horma es pequeña.\n* 🇵🇪 Ivano: Cuero nacional de horma completa."
+        respuesta = "✨ Con gusto te comparto nuestro catálogo. Manejamos las mejores marcas: XXXXXX, YYYY , WWWW (solo fútbol), DDDDD y DRRRR (solo urbana caña alta), todas importadas; además de IIII, que es cuero nacional. 🇵🇪\n¿En qué categoría estás interesado?\n* 👠 Dama\n* 👟 Varón\n* 👧 Niño\n* ⚽ Fútbol\nTips de tallas:\n* 🌍 Importadas: La horma es pequeña.\n* 🇵🇪 IIII: Cuero nacional de horma completa."
         cambiar_modo(numero, "CATALOGO")
         return respuesta
 
@@ -115,7 +111,7 @@ def ejecutar_agente(numero, empresa, mensaje):
         respuesta = "¡Hola! 👋 Por ahora no tenemos promociones activas, pero ¡mantente alerta! 🚨 Ya estamos alistando los mejores modelos y sorpresas para celebrar el Día del Trabajo. 👷‍♂️👟\n¡Se viene un drop increíble que no querrás perderte! 🔥\n¿Hay algo más en lo que pueda ayudarte hoy? 😊"
     
     elif "replica" in intent:
-        respuesta = "En New Sneaker somos Distribuidores Autorizados de todas las marcas que ves en nuestro catálogo (New Athletic, I Run, Ivano, Dariem, entre otras).\nEsto nos permite garantizarte que:\n✅ Todos nuestros productos son 100% ORIGINALES.\n✅ Manejamos los más altos estándares de calidad y durabilidad.\n✅ No trabajamos con réplicas ni imitaciones; recibirás un producto auténtico de marca.\nPuedes visitarnos en nuestras tiendas físicas en San Juan de Dios para comprobar la calidad de los materiales tú mismo. ¡Tu inversión y tu comodidad están aseguradas con nosotros! 🏆\nHay algo mas en lo que pueda ayudarte ?"
+        respuesta = "En EMPRESA X somos Distribuidores Autorizados de todas las marcas que ves en nuestro catálogo (NNNNN, RRRR, IIII, DDDD, entre otras).\nEsto nos permite garantizarte que:\n✅ Todos nuestros productos son 100% ORIGINALES.\n✅ Manejamos los más altos estándares de calidad y durabilidad.\n✅ No trabajamos con réplicas ni imitaciones; recibirás un producto auténtico de marca.\nPuedes visitarnos en nuestras tiendas físicas en San Juan de Dios para comprobar la calidad de los materiales tú mismo. ¡Tu inversión y tu comodidad están aseguradas con nosotros! 🏆\nHay algo mas en lo que pueda ayudarte ?"
 
     elif intent == "queja":
         respuesta = f"Lamentamos lo ocurrido. Un asesor revisará tu caso y te contactará.\n Recuerda que nuestro horario de atención es de Lunes a Viernes de 9:00 AM a 8:00 PM y sabado de 9:00 AM a 8:30 PM."
@@ -127,7 +123,6 @@ def ejecutar_agente(numero, empresa, mensaje):
     else:
         respuesta = generar_respuesta_ia(mensaje, empresa, historial)
         if "asesor" in respuesta.lower() or "contactará" in respuesta.lower():
-            respuesta += f"\n\nPara continuar con tu atención, por favor haz clic en el siguiente enlace y escríbenos directamente por WhatsApp:{LINK_ASESOR}"
             send_alert(empresa["email"], respuesta, empresa, numero, historial)
             seguimiento_asesor(numero, mensaje,empresa,historial,skip_history=True)
             cambiar_modo(numero, "HUMANO")
