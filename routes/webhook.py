@@ -205,26 +205,6 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             print("❌ No se encontró la empresa. Abortando envío.")
             return {"reply": "Empresa no configurada"}
         mensaje = clean_text(mensaje)
-        with lock:
-            # Inicializar si no existe
-            if numero_cliente not in memory_store:
-                memory_store[numero_cliente] = {
-                    "historial": deque(maxlen=15),
-                    "last_update": time.time(),
-                    "modo": "AUTO",
-                    "last_mode_check": 0,
-                    "last_message_time": time.time(),
-                    "processed_messages": set()  # ← NUEVO
-                }
-            
-            # Verificar si ya procesamos este message_id
-            if mensaje_id in memory_store[numero_cliente].get("processed_messages", set()):
-                print(f"⚠️  Mensaje {mensaje_id} ya fue procesado. Ignorando reintento de Meta...")
-                return {"status": "duplicate_ignored"}
-            
-            # Marcar como procesado
-            memory_store[numero_cliente]["processed_messages"].add(mensaje_id)
-            memory_store[numero_cliente]["last_message_time"] = time.time()
         modo = obtener_modo(numero_cliente)
         if modo == "HUMANO":
             print("\n👨‍💼 Chat en modo humano. IA bloqueada.\n")
