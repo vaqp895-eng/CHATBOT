@@ -214,7 +214,7 @@ def identificar_servicio(historial,empresa):
     categoria_favorita = conteo.most_common(1)[0][0]
     return categoria_favorita
 
-def registrar_lead(numero, mensaje, empresa,historial, modo="AUTO",intent=None):
+def registrar_lead(numero, mensaje, empresa,historial, modo="AUTO",intent=None,skip_history=False):
     print("Ejecutando registro de lead...")
     try:
         sheet = iniciar_google()
@@ -227,12 +227,15 @@ def registrar_lead(numero, mensaje, empresa,historial, modo="AUTO",intent=None):
         nuevo_registro = f"Cliente: {mensaje}"
         try:
             if cliente:
-                historial_actual = cliente["datos"].get("Historial", "") or ""
-                if historial_actual:
-                    contexto_final = historial_actual + " | " + nuevo_registro
+                if skip_history:
+                    contexto_final = cliente["datos"].get("Historial", "") or ""
                 else:
-                    contexto_final = nuevo_registro
-                estado = "Atendido por el bot" if intent == "cierre" else "Pendiente Asesor"
+                    historial_actual = cliente["datos"].get("Historial", "") or ""
+                    if historial_actual:
+                        contexto_final = historial_actual + " | " + nuevo_registro
+                    else:
+                        contexto_final = nuevo_registro
+                    estado = "Atendido por el bot" if intent == "cierre" else "Pendiente Asesor"
             else:
                 contexto_final = nuevo_registro
                 estado = "Pendiente Asesor"    
@@ -342,7 +345,7 @@ def actualizar_sheet(numero, nuevo_modo):
         print("❌ Error actualizando modo:", e)
         return False
     
-def seguimiento_asesor(numero, mensaje, empresa,historial, modo="AUTO",intent=None):
+def seguimiento_asesor(numero, mensaje, empresa,historial, modo="AUTO",intent=None,skip_history=False):
     print("Ejecutando seguimiento asesor...")
     try:
         sheet = iniciar_google()
@@ -356,12 +359,15 @@ def seguimiento_asesor(numero, mensaje, empresa,historial, modo="AUTO",intent=No
 
         try:
             if cliente:
-                historial_actual = cliente["datos"].get("Historial", "") or ""
-                if historial_actual:
-                    contexto_final = historial_actual + " | " + nuevo_registro
+                if skip_history:
+                    contexto_final = cliente["datos"].get("Historial", "") or ""
                 else:
-                    contexto_final = nuevo_registro
-                estado = "Atendido por el bot" if intent == "cierre" else "Pendiente Asesor"
+                    historial_actual = cliente["datos"].get("Historial", "") or ""
+                    if historial_actual:
+                        contexto_final = historial_actual + " | " + nuevo_registro
+                    else:
+                        contexto_final = nuevo_registro
+                    estado = "Atendido por el bot" if intent == "cierre" else "Pendiente Asesor"
             else:
                 contexto_final = nuevo_registro
                 estado = "Pendiente Asesor"   
