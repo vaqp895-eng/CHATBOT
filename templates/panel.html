@@ -498,9 +498,9 @@
         }
 
         @keyframes flujoBordeGemini {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            0% { background-position: 0% 0%, 0% 50%; }
+            50% { background-position: 0% 0%, 100% 50%; }
+            100% { background-position: 0% 0%, 0% 50%; }
         }
 
         @keyframes iaPulseSuave {
@@ -527,16 +527,39 @@
             animation: iaPulseSuave 1.5s ease-in-out infinite;
         }
         #sugerencias > * {
+            position: relative !important;
             transition: all 0.3s ease !important;
-            border-left: 3px solid transparent !important;
+            border: 1px solid #d1d7db !important; 
+            border-radius: 8px !important; 
+            padding: 10px 14px !important;
+            background-color: white !important;
+            overflow: hidden !important; 
+            cursor: pointer;
+            color: #54656f;
+            font-size: 14px;
+        }
+
+        #sugerencias > *::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, #4285f4, #9b51e0, #e91e63);
+            opacity: 0; /* Oculto por defecto */
+            transition: opacity 0.3s ease;
         }
 
         #sugerencias > *:hover {
             transform: translateX(4px) !important;
             background-color: #fafafa !important;
-            /* Dibuja una línea multicolor a la izquierda de la respuesta */
-            border-image: linear-gradient(to bottom, #4285f4, #9b51e0, #e91e63) 1 !important;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+            border-color: transparent !important;
+        }
+
+        #sugerencias > *:hover::before {
+            opacity: 1; 
         }
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
