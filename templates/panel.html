@@ -985,6 +985,9 @@
                 alert('✅ Chat cerrado correctamente');
                 numeroActual = null;
                 actualizarAutoRefresh();
+                document.querySelectorAll('.chat-item.active').forEach(item => {
+                    item.classList.remove('active');
+                });
                 document.getElementById('messages').innerHTML = 
                     '<div class="empty-state">Selecciona un chat para ver la conversación</div>';
                 document.getElementById('header-numero').textContent = '👨‍💼 Panel de Asesor';
