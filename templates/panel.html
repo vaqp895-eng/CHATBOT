@@ -69,27 +69,23 @@
             font-weight: 700;
             color: var(--gray-700);
         }
-        
-        .sidebar-header span {
-            background: var(--primary);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        
+                
         .btn-refrescar-chats {
-            padding: 8px 12px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            background-color: var(--primary);
             color: white;
             border: none;
+            padding: 6px 12px;
             border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
             font-size: 12px;
-            transition: all 0.2s;
-            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.2);
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }   
+        .btn-refrescar-chats:hover {
+            opacity: 0.9;
         }
         
         .btn-refrescar-chats:hover:not(:disabled) {
@@ -109,13 +105,16 @@
         }
         
         .chat-item {
-            padding: 12px 12px;
+            padding: 12px 14px;
             margin: 4px 8px;
             background: var(--gray-50);
             border-left: 3px solid transparent;
             cursor: pointer;
             border-radius: 8px;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 6px; /* Espacio entre las 3 filas */
         }
         
         .chat-item:hover {
@@ -128,36 +127,78 @@
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
             border-left-color: var(--secondary);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 12px rgba(135, 85, 211, 0.3);
         }
-        
+
+        .chat-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         .chat-item-numero {
             font-weight: 700;
-            font-size: 13px;
-            margin-bottom: 3px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
-        
+        .chat-item-numero svg {
+            color: var(--primary);
+        }
+        .chat-item.active .chat-item-numero svg {
+            color: white;
+        }
         .chat-item-mensaje {
-            font-size: 11px;
+            font-size: 12px;
             opacity: 0.7;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            margin-bottom: 4px;
         }
         
         .chat-item-footer {
-            font-size: 10px;
+            font-size: 11px;
             opacity: 0.6;
             display: flex;
-            justify-content: space-between;
+            align-items: center;
+            gap: 4px;
         }
         
         .chat-item.active .chat-item-mensaje,
         .chat-item.active .chat-item-footer {
             opacity: 0.95;
         }
+        .chat-badge {
+            font-size: 9px;
+            font-weight: 800;
+            padding: 3px 6px;
+            border-radius: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-auto {
+            background-color: #e0f2fe; 
+            color: #0284c7; 
+        }
+
+        .badge-humano {
+            background-color: #fef3c7; 
+            color: #d97706; 
+        }
+
+        .chat-item.active .badge-auto,
+        .chat-item.active .badge-humano {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
         
+        .empty-sidebar {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--gray-400);
+            font-size: 13px;
+        }
         .empty-sidebar {
             padding: 40px 20px;
             text-align: center;
@@ -429,7 +470,7 @@
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
             font-weight: 600;
             font-size: 13px;
@@ -547,7 +588,7 @@
             bottom: 0;
             width: 4px;
             background: linear-gradient(to bottom, #4285f4, #9b51e0, #e91e63);
-            opacity: 0; /* Oculto por defecto */
+            opacity: 0; 
             transition: opacity 0.3s ease;
         }
 
@@ -579,8 +620,15 @@
     <!-- ===== SIDEBAR (CHATS PENDIENTES) ===== -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <h3>💬 Pendientes</h3>
-            <button class="btn-refrescar-chats" onclick="cargarChats()">🔄 Refrescar</button>
+            <h3>Mensajes Pendientes</h3>
+            <button class="btn-refrescar-chats" onclick="cargarChats()">
+                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <polyline points="1 20 1 14 7 14"></polyline>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                </svg>
+                Refrescar
+            </button>
         </div>
         
         <div id="chats" class="chats-list">
@@ -925,19 +973,42 @@
         const chatsDiv = document.getElementById('chats');
         
         if (!chats || chats.length === 0) {
-            chatsDiv.innerHTML = '<div class="empty-chat">No hay chats pendientes</div>';
+            chatsDiv.innerHTML = '<div class="empty-chat" style="padding: 20px; text-align: center; color: var(--gray-600);">No hay chats pendientes</div>';
             return;
         }
  
         let html = '';
         chats.forEach(chat => {
+            let numeroFormateado = chat.numero;
+            if(chat.numero.length >= 11) {
+                numeroFormateado = `${chat.numero.substring(0,2)} ${chat.numero.substring(2,5)} ${chat.numero.substring(5,8)} ${chat.numero.substring(8)}`;
+            }
+
+            // Lógica para asignar el color del Badge
+            const modoUpper = chat.modo ? chat.modo.toUpperCase() : 'AUTO';
+            const claseBadge = modoUpper === 'HUMANO' ? 'badge-humano' : 'badge-auto';
+
             html += `
                 <div class="chat-item" onclick="abrirChat('${chat.numero}')">
-                    <div class="chat-item-numero">📱 ${chat.numero}</div>
+                    <div class="chat-item-header">
+                        <div class="chat-item-numero">
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            ${numeroFormateado}
+                        </div>
+                        <span class="chat-badge ${claseBadge}">${modoUpper}</span>
+                    </div>
+                    
                     <div class="chat-item-mensaje">${chat.mensaje}</div>
+                    
                     <div class="chat-item-footer">
-                        <span>⏰ ${chat.hora}</span>
-                        <span>${chat.modo}</span>
+                        <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        ${chat.hora}
                     </div>
                 </div>
             `;
@@ -1108,7 +1179,18 @@
         const contenidoOriginal = btn.innerHTML;
         btn.disabled = true;
         btn.classList.add('btn-ia-loading');
-        btn.innerHTML = '<span class="ia-icon">✨</span>';
+        btn.innerHTML = `
+            <svg class="ia-icon" viewBox="0 0 24 24" width="16" height="16">
+                <defs>
+                    <linearGradient id="gemini-grad-loading" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#4285f4"></stop>
+                        <stop offset="50%" stop-color="#9b51e0"></stop>
+                        <stop offset="100%" stop-color="#e91e63"></stop>
+                    </linearGradient>
+                </defs>
+                <path d="M12 0C12 6.627 17.373 12 24 12C17.373 12 12 17.373 12 24C12 17.373 6.627 12 0 12C6.627 12 12 6.627 12 0Z" fill="url(#gemini-grad-loading)"></path>
+            </svg>
+        `;
         
         try {
             const response = await fetch(`${API_BASE}/panel/sugerencias`, {
