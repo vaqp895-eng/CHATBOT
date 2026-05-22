@@ -194,7 +194,7 @@
             background-repeat: repeat;
             background-size: 160px;
             /* Opacidad más alta para que se note bien sobre el gradiente */
-            opacity: 0.25; 
+            opacity: 0.10; 
             pointer-events: none;
             z-index: 1;
         }
@@ -242,7 +242,7 @@
             background-image: url('/static/fondo_imagen.jpg');
             background-repeat: repeat;
             background-size: 160px;
-            opacity: 0.15;
+            opacity: 0.20;
             background-attachment: fixed;
             pointer-events: none;
             z-index: 0;
@@ -673,31 +673,50 @@
                         ✨ IA
                     </button>
                 </div>
-                <div style="display: flex; gap: 8px; align-items: stretch;">
-                    <textarea 
-                        id="mensaje" 
-                        class="input-field" 
-                        placeholder="Escribe tu respuesta aquí..."
-                        rows="3"
-                        maxlength="4000"
-                        style="flex: 1;min-height: 80px;"></textarea>          
-                    <div style="display: flex; flex-direction: column;gap: 6px; justify-content: space-between;">
-                        <div style="display: flex; gap: 6px;">
-                            <button class="btn-secundario" onclick="enviarImagen()" title="Enviar imagen">
-                                🖼️ Imagen
-                            </button>
-                            <button class="btn-secundario" onclick="enviarDocumento()" title="Enviar documento">
-                                📄 Documento
-                            </button>
-                            <button class="btn-secundario" onclick="enviarUbicacion()" title="Enviar ubicación">
-                                📍 Ubicación
-                            </button>
-                        </div>
-                        <button id="btn-enviar" class="btn-enviar" onclick="enviarRespuesta()" style="width: 100%;">
-                            📤 Enviar
+                <div style="position: relative;">
+                    <!-- Botón + -->
+                    <button onclick="var menu = document.getElementById('menu-adjuntos'); menu.style.display = (menu.style.display === 'none' || menu.style.display === '') ? 'flex' : 'none';" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #54656f; padding: 0 8px; display: flex; align-items: center; justify-content: center; border-radius: 50%; height: 40px; transition: background 0.2s;">
+                        ➕
+                    </button>
+
+                    <!-- Menú desplegable (Oculto por defecto) -->
+                    <div id="menu-adjuntos" style="display: none; position: absolute; bottom: 50px; left: 0; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); padding: 8px; flex-direction: column; gap: 4px; min-width: 150px; z-index: 100;">
+                        
+                        <button onclick="enviarImagen(); document.getElementById('menu-adjuntos').style.display='none';" class="item-adjunto" style="background: none; border: none; text-align: left; padding: 10px; cursor: pointer; border-radius: 8px; display: flex; gap: 10px; align-items: center; font-size: 14px; color: #333;">
+                            🖼️ Imagen
                         </button>
-                    </div> 
-                </div>                
+                        
+                        <button onclick="enviarDocumento(); document.getElementById('menu-adjuntos').style.display='none';" class="item-adjunto" style="background: none; border: none; text-align: left; padding: 10px; cursor: pointer; border-radius: 8px; display: flex; gap: 10px; align-items: center; font-size: 14px; color: #333;">
+                            📄 Documento
+                        </button>
+                        
+                        <button onclick="enviarUbicacion(); document.getElementById('menu-adjuntos').style.display='none';" class="item-adjunto" style="background: none; border: none; text-align: left; padding: 10px; cursor: pointer; border-radius: 8px; display: flex; gap: 10px; align-items: center; font-size: 14px; color: #333;">
+                            📍 Ubicación
+                        </button>
+                    </div>
+                </div>
+                <textarea 
+                    id="mensaje" 
+                    class="input-field" 
+                    placeholder="Escribe tu respuesta aquí..."
+                    rows="3"
+                    maxlength="4000"
+                    style="flex: 1;border: none; outline: none; resize: none; min-height: 24px; max-height: 100px; padding: 8px 0; background: transparent; font-family: inherit; font-size: 15px;"></textarea>          
+                    <button id="btn-enviar" onclick="enviarRespuesta()" style="background-color: #00a884; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: transform 0.1s;">
+                        <!-- Este es el icono SVG exacto estilo WhatsApp -->
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" style="margin-left: 4px;">
+                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+                        </svg>
+                    </button>
+                </div> 
+                <style>
+                    .item-adjunto:hover {
+                        background-color: #f0f2f5 !important;
+                    }
+                    #btn-enviar:active {
+                        transform: scale(0.95);
+                    }
+                </style>               
             </div>
             <div id="char-count" class="char-count"></div>
         </div>
