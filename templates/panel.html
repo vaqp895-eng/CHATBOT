@@ -229,22 +229,12 @@
             overflow-y: auto;
             padding: 20px;
             position: relative;
-            background-color: #e5ddd5;
-        }
-        .chat-area::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: url('/static/fondo_imagen.jpg');
+            background: 
+                linear-gradient(rgba(229, 221, 213, 0.85), rgba(229, 221, 213, 0.85)),
+                url('/static/fondo_imagen.jpg');
             background-repeat: repeat;
             background-size: 160px;
-            opacity: 0.20;
-            background-attachment: fixed;
-            pointer-events: none;
-            z-index: 0;
+            background-attachment: fixed; 
         }
 
         .chat-area > * {
@@ -472,47 +462,13 @@
             background: var(--gray-300);
             border-radius: 3px;
         }
-        /* ===== BOTONES SECUNDARIOS ===== */
-        .btn-secundario {
-            padding: 10px 14px;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.2s;
-            box-shadow: 0 2px 6px rgba(245, 87, 108, 0.3);
-            white-space: nowrap;
-        }
-
-        .btn-secundario:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
-        }
-        .btn-secundario:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
-        }
-
-        .btn-secundario:active {
-            transform: translateY(0);
-        }
-        .btn-secundario:active:not(:disabled) {
-            transform: translateY(0);
-        }
-        .btn-secundario:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
+        
         /* ===== SUGERENCIAS IA ===== */
         #sugerencias-container {
             margin-bottom: 12px;
         }
 
         .sugerencia-btn {
-            /* Forma de píldora para hacer juego con el input de WhatsApp */
             padding: 6px 16px;
             background: white;
             border: 1px solid #d1d7db;
@@ -521,26 +477,25 @@
             font-size: 13px;
             font-weight: 500;
             color: #54656f;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             gap: 6px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
-
         .sugerencia-btn:hover {
-            background: #f0f2f5;
-            border-color: #8696a0;
+            border-color: transparent;
+            background: 
+                linear-gradient(white, white) padding-box, 
+                linear-gradient(90deg, #4285f4, #9b51e0, #e91e63, #fbbc05) border-box;
+            box-shadow: 0 4px 10px rgba(155, 81, 224, 0.15);
             transform: translateY(-1px);
+            color: #9b51e0; /* El texto se vuelve morado sutilmente */
         }
-
+        
         .sugerencia-btn:active {
             transform: scale(0.96);
         }
-
-        /* ========================================================= */
-        /* EFECTO MULTICOLOR DE CARGA (Estilo Gemini)                */
-        /* ========================================================= */
 
         @keyframes flujoBordeGemini {
             0% { background-position: 0% 50%; }
@@ -548,10 +503,10 @@
             100% { background-position: 0% 50%; }
         }
 
-        @keyframes iaGiroSuave {
-            0% { transform: rotate(0deg) scale(1); }
-            50% { transform: rotate(180deg) scale(1.2); }
-            100% { transform: rotate(360deg) scale(1); }
+        @keyframes iaPulseSuave {
+            0% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.15); filter: brightness(1.2); }
+            100% { transform: scale(1); filter: brightness(1); }
         }
 
         /* Cuando la IA está pensando, activa el borde mágico */
@@ -567,10 +522,21 @@
             color: #333;
         }
 
-        /* Animación exclusiva para el destello ✨ */
         .btn-ia-loading .ia-icon {
             display: inline-block;
-            animation: iaGiroSuave 1.5s ease-in-out infinite;
+            animation: iaPulseSuave 1.5s ease-in-out infinite;
+        }
+        #sugerencias > * {
+            transition: all 0.3s ease !important;
+            border-left: 3px solid transparent !important;
+        }
+
+        #sugerencias > *:hover {
+            transform: translateX(4px) !important;
+            background-color: #fafafa !important;
+            /* Dibuja una línea multicolor a la izquierda de la respuesta */
+            border-image: linear-gradient(to bottom, #4285f4, #9b51e0, #e91e63) 1 !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
         }
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
@@ -628,7 +594,17 @@
                 
                 <div style="display: flex; justify-content: flex-start;">
                     <button class="sugerencia-btn" onclick="cargarSugerencias()" title="Sugerencias IA">
-                        ✨ IA
+                        <svg class="ia-icon" viewBox="0 0 24 24" width="16" height="16">
+                            <defs>
+                                <linearGradient id="gemini-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#4285f4"></stop>
+                                    <stop offset="50%" stop-color="#9b51e0"></stop>
+                                    <stop offset="100%" stop-color="#e91e63"></stop>
+                                </linearGradient>
+                            </defs>
+                            <path d="M12 0C12 6.627 17.373 12 24 12C17.373 12 12 17.373 12 24C12 17.373 6.627 12 0 12C6.627 12 12 6.627 12 0Z" fill="url(#gemini-grad)"></path>
+                        </svg>
+                        IA
                     </button>
                 </div>
                 
