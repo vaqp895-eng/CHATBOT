@@ -71,12 +71,22 @@
         }
 
         /* ===== TOGGLE SIDEBAR ===== */
+        .container {
+            transition: grid-template-columns 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        
         .container.sidebar-oculta {
-            grid-template-columns: 1fr;
+            grid-template-columns: 0px 1fr;
+        }
+        
+        .sidebar {
+            transition: opacity 0.3s ease;
+            overflow-x: hidden; 
         }
         
         .container.sidebar-oculta .sidebar {
-            display: none;
+            opacity: 0;
+            pointer-events: none;
         }
 
         .btn-toggle-sidebar {
@@ -1350,7 +1360,7 @@
             }, 4000);
         }
     }
-    
+
     function toggleSidebar() {
         const container = document.querySelector('.container');
         container.classList.toggle('sidebar-oculta');
