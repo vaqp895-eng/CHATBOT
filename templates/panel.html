@@ -69,7 +69,36 @@
             font-weight: 700;
             color: var(--gray-700);
         }
-                
+
+        /* ===== TOGGLE SIDEBAR ===== */
+        .container.sidebar-oculta {
+            grid-template-columns: 1fr;
+        }
+        
+        .container.sidebar-oculta .sidebar {
+            display: none;
+        }
+
+        .btn-toggle-sidebar {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 6px;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+        }
+
+        .btn-toggle-sidebar:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
         .btn-refrescar-chats {
             background-color: var(--primary);
             color: white;
@@ -672,9 +701,19 @@
     <div class="main">  
         <!-- Header -->
         <div class="header" id="header" style="display: flex; justify-content: space-between; align-items: flex-start;">
-            <div>
-                <h2 id="header-numero">👨‍💼 Panel de Asesor</h2>
-                <p id="header-empresa">Selecciona un chat para ver el historial</p>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <button class="btn-toggle-sidebar" onclick="toggleSidebar()" title="Mostrar/Ocultar Chats">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+                
+                <div>
+                    <h2 id="header-numero">👨‍💼 Panel de Asesor</h2>
+                    <p id="header-empresa">Selecciona un chat para ver el historial</p>
+                </div>
             </div>
             <button id="btn-finalizar" class="btn-finalizar" onclick="finalizarConversacion()">
                 ✅ Finalizar Chat
