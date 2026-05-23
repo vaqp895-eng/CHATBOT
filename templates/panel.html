@@ -1350,7 +1350,11 @@
             }, 4000);
         }
     }
- 
+    
+    function toggleSidebar() {
+        const container = document.querySelector('.container');
+        container.classList.toggle('sidebar-oculta');
+    }
     // ===== INICIALIZAR =====
     document.addEventListener('DOMContentLoaded', () => {
         console.log('🚀 Panel iniciado');
