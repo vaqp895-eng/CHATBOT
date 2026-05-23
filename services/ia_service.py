@@ -109,7 +109,7 @@ def generar_sugerencias(historial):
                 "Cuéntame más detalles"
             ]
         
-        prompt = f"""Basándote en esta conversación, genera EXACTAMENTE 2 sugerencias cortas (máx 60 caracteres cada una) para responder al cliente. 
+        prompt = f"""Basándote en esta conversación, genera EXACTAMENTE 2 sugerencias cortas (máx 200 caracteres cada una) para responder al cliente. 
 Conversación:
 {context}
 Formato:
